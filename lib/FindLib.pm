@@ -1,7 +1,7 @@
 package FindLib;
 
 #TODO describe how it works (ie. require()s the module - but does not use() it, you have to do it yourself)
-#TODO tests: simple case; a module with the same name in different dirs (make sure only the first is 'use'd); calling on a module that itself modifies @INC (the modification must be permanent); testing that in the module that is to be found @INC only contains the original value of @INC plus the dir of the module (ie. no map { "$_/lib", "$_/blib" } @parent_dirs_of_FindBin_Bin is in @INC)
+#TODO tests: use()ing a module that itself modifies @INC (the modification must be permanent); testing that in the module that is to be found @INC only contains the original value of @INC plus the dir of the module (ie. no map { "$_/lib", "$_/blib" } @parent_dirs_of_FindBin_Bin is in @INC)
 #TODO document that it prefers modules in the updir libdirs over the system @INC paths
 #TODO option to specify alternatives to ['blib', 'lib']
 #TODO what about subrefs in @INC? (eg. scripts running from PAR archives)
@@ -12,6 +12,7 @@ use strict;
 use FindBin;
 use File::Spec;
 use Cwd;
+use Carp;
 
 =head1 NAME
 
@@ -94,24 +95,24 @@ sub findlib
     my $dir = $FindBin::RealBin;
 
     my $scan_iterations = 0;
-    while ($dir ne File::Spec->rootdir &&
-           $scan_iterations < $max_scan_iterations
-    ) {
-      push @libdirs, map { File::Spec->catfile($dir, $_) } @libdir_names;
+    do {
+      push @libdirs, grep { -e $_ }
+        map { File::Spec->catfile($dir, $_) } @libdir_names;
       $dir = Cwd::realpath(File::Spec->catfile($dir, File::Spec->updir));
-    }
+    } while ($dir ne File::Spec->rootdir &&
+             $scan_iterations++ < $max_scan_iterations);
 
     if (!@libdirs) {
       croak "No libdir candidates (" .
-            join(", " map { "'$_'" } @libdir_names) .
+            join(", ", map { "'$_'" } @libdir_names) .
             ") found when scanning upwards from '$FindBin::RealBin'";
     }
 
     foreach my $libdir (@libdirs) {
-      #FIXME rewrite to allow $module_name to tweak @INC (permanently)
-      local @INC = $libdir, @INC;
+      unshift @INC, $libdir;
       eval "require $module_name";
       last if $@ eq "";
+      @INC = grep { $_ ne $libdir } @INC;
     }
   }
 
@@ -183,6 +184,3 @@ under the same terms as Perl itself.
 =cut
 
 1; # End of FindLib
-
-
-
