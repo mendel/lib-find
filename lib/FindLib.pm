@@ -1,11 +1,21 @@
 package FindLib;
 
+#TODO describe how it works (ie. require()s the module - but does not use() it, you have to do it yourself)
+#TODO tests: simple case; a module with the same name in different dirs (make sure only the first is 'use'd); calling on a module that itself modifies @INC (the modification must be permanent); testing that in the module that is to be found @INC only contains the original value of @INC plus the dir of the module (ie. no map { "$_/lib", "$_/blib" } @parent_dirs_of_FindBin_Bin is in @INC)
+#TODO document that it prefers modules in the updir libdirs over the system @INC paths
+#TODO option to specify alternatives to ['blib', 'lib']
+#TODO what about subrefs in @INC? (eg. scripts running from PAR archives)
+
 use warnings;
 use strict;
 
+use FindBin;
+use File::Spec;
+use Cwd;
+
 =head1 NAME
 
-FindLib - The great new FindLib!
+FindLib - Finds a libdir containing a module scanning upwards from $FindBin::RealBin
 
 =head1 VERSION
 
@@ -22,31 +32,99 @@ Quick summary of what the module does.
 
 Perhaps a little code snippet.
 
-    use FindLib;
-
-    my $foo = FindLib->new();
-    ...
+    use FindLib qw(My::App);  # finds the dir upwards that contains My/App.pm
+                              # then adds the libdir of My::App to @INC
+    use My::Other::Module;    # now found
 
 =head1 EXPORT
 
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
+No exports.
+
+=head1 VARIABLES
+
+=cut
+
+=head2 $FindLib::max_scan_iterations
+
+The scanning of parent directories stops after going this many levels upwards
+(to avoid infinite loops).
+
+The default value is 100.
+
+=cut
+
+our $max_scan_iterations = 100;
+
+=head2 @FindLib::libdir_names
+
+The relative directory names to look for as libdirs.
+
+The default is ('blib', 'lib').
+
+=cut
+
+our @libdir_names = qw(blib lib);
 
 =head1 FUNCTIONS
 
-=head2 function1
+=cut
+
+sub import
+{
+  my ($caller, $module_name) = (shift, @_);
+
+  findlib($module_name);
+}
+
+=head2 findlib($module_name)
+
+FIXME
 
 =cut
 
-sub function1 {
+sub findlib
+{
+  my ($module_name) = @_;
+
+  (my $module_filename = "$module_name.pm") =~ s{::}{/}g;
+
+  if (!exists $INC{$module_filename}) {
+    my @libdirs;
+
+    my $dir = $FindBin::RealBin;
+
+    my $scan_iterations = 0;
+    while ($dir ne File::Spec->rootdir &&
+           $scan_iterations < $max_scan_iterations
+    ) {
+      push @libdirs, map { File::Spec->catfile($dir, $_) } @libdir_names;
+      $dir = Cwd::realpath(File::Spec->catfile($dir, File::Spec->updir));
+    }
+
+    if (!@libdirs) {
+      croak "No libdir candidates (" .
+            join(", " map { "'$_'" } @libdir_names) .
+            ") found when scanning upwards from '$FindBin::RealBin'";
+    }
+
+    foreach my $libdir (@libdirs) {
+      #FIXME rewrite to allow $module_name to tweak @INC (permanently)
+      local @INC = $libdir, @INC;
+      eval "require $module_name";
+      last if $@ eq "";
+    }
+  }
+
+  if (!exists $INC{$module_filename}) {
+    croak "Module '$module_name' not found when scanning upwards from '$FindBin::RealBin'";
+  }
+
+  push @INC, $INC{$module_filename};
 }
 
-=head2 function2
+=head1 SEE ALSO
 
-=cut
-
-sub function2 {
-}
+L<FindBin>
 
 =head1 AUTHOR
 
@@ -105,3 +183,6 @@ under the same terms as Perl itself.
 =cut
 
 1; # End of FindLib
+
+
+
