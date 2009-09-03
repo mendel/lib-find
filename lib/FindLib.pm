@@ -1,6 +1,6 @@
 package FindLib;
 
-#TODO tests for modules with file permisson problems, syntax errors, missing 1; at the end
+#TODO tests for modules with syntax errors, missing '1;' at the end - test for both when libdir already in @INC and when it's found using the scan
 #TODO some way to find the app root: either a separate module (use FindApp 'My::App'; say $FindApp::Root;) or dynamically create variables in this package (use FindLib 'My::App'; say $FindLib::My::App::lib;)
 #TODO describe how it works (ie. require()s the module - but does not use() it, you have to do it yourself)
 #TODO document what happens if the dir of the module is already in @INC (ie. tries to find the module using the original @INC first, no shadowing - impossible to implement properly)
@@ -95,7 +95,7 @@ sub findlib
   # try if it's already in @INC
   eval "require $module_name";
 
-  if (!exists $INC{$module_inc_key}) {
+  if (!defined $INC{$module_inc_key}) {
     my @libdirs;
 
     my $dir = $FindBin::RealBin;
@@ -117,12 +117,12 @@ sub findlib
     foreach my $libdir (@libdirs) {
       unshift @INC, $libdir;
       eval "require $module_name";
-      last if $@ eq "";
+      last if exists $INC{$module_inc_key};
       shift @INC;
     }
   }
 
-  if (!exists $INC{$module_inc_key}) {
+  if (!defined $INC{$module_inc_key}) {
     croak "Module '$module_name' not found when scanning upwards from '$FindBin::RealBin'";
   }
 }
