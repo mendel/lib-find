@@ -15,6 +15,10 @@ if ($Module::Install::AUTHOR) {
   test_requires 'Pod::Coverage' => '0.18';
 }
 
+configure_requires 'Module::Install::ExtraTests' => 0.006;
+
+extra_tests;
+
 auto_install;
 
 WriteAll;
