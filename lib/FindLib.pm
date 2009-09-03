@@ -1,7 +1,6 @@
 package FindLib;
 
 #TODO describe how it works (ie. require()s the module - but does not use() it, you have to do it yourself)
-#TODO tests: use()ing a module that itself modifies @INC (the modification must be permanent)
 #TODO document that it prefers modules in the updir libdirs over the system @INC paths
 #TODO option to specify alternatives to ['blib', 'lib']
 #TODO what about subrefs in @INC? (eg. scripts running from PAR archives)
