@@ -21,6 +21,8 @@ use FindLib ();
     my $base_dir = "$FindBin::Bin/data/simple";
 
     local $Module::To::Find::magic = undef;
+    local @Module::To::Find::seenINC = ();
+
     my @newINC;
     my %newINC;
 
@@ -49,6 +51,12 @@ use FindLib ();
       "only the right libdir is added to the beginning of \@INC and no other changes"
     );
 
+    cmp_deeply(
+      \@Module::To::Find::seenINC,
+      ["$base_dir/$expected_inc", @INC],
+      "the module sees the original \@INC with only the right libdir prepended to it but no other changes"
+    );
+
     is(
       $Module::To::Find::magic,
       'FindLib',
@@ -60,6 +68,8 @@ use FindLib ();
     my $base_dir = "$FindBin::Bin/data/simple";
 
     local $Module::To::Find::magic = undef;
+    local @Module::To::Find::seenINC = ();
+
     my @newINC;
     my %newINC;
 
@@ -87,6 +97,12 @@ use FindLib ();
       \@newINC,
       ["$base_dir/$expected_inc", @INC],
       "only the right libdir is added to the beginning of \@INC and no other changes"
+    );
+
+    cmp_deeply(
+      \@Module::To::Find::seenINC,
+      ["$base_dir/$expected_inc", @INC],
+      "the module sees the original \@INC with only the right libdir prepended to it but no other changes"
     );
 
     is(
