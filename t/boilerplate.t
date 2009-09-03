@@ -1,8 +1,8 @@
-#!perl -T
+#!/usr/bin/env perl -T
 
 use strict;
 use warnings;
-use Test::More tests => 3;
+use Test::Most tests => 3;
 
 sub not_in_file_ok {
     my ($filename, %regex) = @_;
