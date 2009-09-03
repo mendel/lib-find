@@ -10,7 +10,7 @@ use Test::Most;
 use FindLib ();
 
 {
-  my $base_dir = "$FindBin::Bin/data/incmodifier";
+  my $base_dir = "$FindBin::Bin/data/inc_modifier";
 
   my @newINC;
   my %newINC;

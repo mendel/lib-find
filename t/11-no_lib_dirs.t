@@ -10,7 +10,7 @@ use Test::Most;
 use FindLib ();
 
 {
-  my $base_dir = "$FindBin::Bin/data/nomodule";
+  my $base_dir = "$FindBin::Bin/data/no_lib_dirs";
 
   local $FindLib::max_scan_iterations = 4;
 
@@ -24,8 +24,8 @@ use FindLib ();
 
     throws_ok {
       FindLib::findlib('Module::To::Find');
-    } qr/^Module 'Module::To::Find' not found when scanning upwards from '\Q$FindBin::RealBin\E'/,
-      "findlib() dies with the proper error message if the module cannot be found";
+    } qr/^No libdir candidates \(.*\) found when scanning upwards from '\Q$FindBin::RealBin\E'/,
+      "findlib() dies with the proper error message if no libdir candidates found";
 
     @newINC = @INC;
     %newINC = %INC;
@@ -34,7 +34,7 @@ use FindLib ();
   cmp_deeply(
     \@newINC,
     \@INC,
-    "findlib() does not touch \@INC if the module cannot be found"
+    "findlib() does not touch \@INC if no libdir candidates found"
   );
 }
 
