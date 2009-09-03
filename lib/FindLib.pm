@@ -2,10 +2,6 @@ package FindLib;
 
 #TODO tests for modules with syntax errors, missing '1;' at the end - test for both when libdir already in @INC and when it's found using the scan
 #TODO some way to find the app root: either a separate module (use FindApp 'My::App'; say $FindApp::Root;) or dynamically create variables in this package (use FindLib 'My::App'; say $FindLib::My::App::lib;)
-#TODO describe how it works (ie. require()s the module - but does not use() it, you have to do it yourself)
-#TODO document what happens if the dir of the module is already in @INC (ie. tries to find the module using the original @INC first, no shadowing - impossible to implement properly)
-#TODO option to specify alternatives to ['blib', 'lib']
-#TODO what about subrefs in @INC? (eg. scripts running from PAR archives)
 
 use warnings;
 use strict;
@@ -19,7 +15,7 @@ use Carp;
 
 =head1 NAME
 
-FindLib - Finds a libdir containing a module scanning upwards from $FindBin::RealBin
+FindLib - Finds a module scanning upwards from $FindBin::RealBin, adds its dir to @INC
 
 =head1 VERSION
 
@@ -32,13 +28,71 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+This module starts scanning for directories named C<blib> or C<lib> in the
+parent directories of C<$FindBin::RealBin>, starting with C<$FindBin::RealBin>
+and going upwards. For each libdir candidate it tries to C<require> the named
+module from it. Stops on the first module found and unshifts its libdir into
+C<@INC>.
 
-Perhaps a little code snippet.
+    # assume this directory layout:
+    # 
+    # myapp/
+    # |-- bin
+    # |   `-- cron
+    # |       `-- foo.pl
+    # `-- lib
+    #     `-- My
+    #         |-- App.pm
+    #         `-- Schema.pm
+    #
 
-    use FindLib qw(My::App);  # finds the dir upwards that contains My/App.pm
-                              # then adds the libdir of My::App to @INC
-    use My::Other::Module;    # now found
+    # in foo.pl
+    use FindLib 'My::App'; # finds the dir upwards that contains
+                           # My/App.pm and prepends it to @INC
+    use My::Schema;        # now found
+
+=head1 DISCLAIMER
+
+This is ALPHA SOFTWARE. Use at your own risk. Features may change.
+
+=head1 DESCRIPTION
+
+Probably you have many different checkouts of the same application or many
+similar applications (eg. L<Catalyst> based webapps) in different places
+throughout your development machine. Probably you have dozens of utility
+scripts for each of them. Probably you don't want to set an environment
+variable to a different value every time you start working in a different
+checkout tree (just to make sure those scripts will find the correct libdir
+whichever dir you are in when you start them). So you decide to use L<FindBin>.
+Fine so far (though not too elegant and introduces a 'moving part' that can go
+wrong).
+
+From time to time you probably want to freely rearrange those utility scripts
+into a continuously morphing directory hierarchy under your C<bin> or C<script>
+directory - to put in some 'order and method'. And on such occasions probably
+you don't want to edit them one by one to match their hard-wired relative paths
+to C<$FindBin::Bin>...
+
+This is where this module helps you.
+
+Previously you used to hard-wire paths relative to C<$FindBin::Bin> into the
+scripts like that:
+
+    use FindBin;
+    use lib "$FindBin::Bin/../..";
+
+    use My::App;
+    use My::Schema;
+
+Now you can write this instead:
+
+    use FindLib 'My::App';
+
+    use My::App;
+    use My::Schema;
+
+And your script will automagically find the dir where the My::App module
+resides.
 
 =head1 EXPORT
 
@@ -82,7 +136,11 @@ sub import
 
 =head2 findlib($module_name)
 
-FIXME
+Performs the scanning of parent dirs and prepending the libdir to C<@INC> on
+success.
+
+C<< use FindLib 'My::App' >> is equivalent to C<< FindLib::findlib('My::App')
+>>.
 
 =cut
 
@@ -127,9 +185,45 @@ sub findlib
   }
 }
 
+=head1 TODO
+
+=over
+
+=item * option to specify alternatives to ['blib', 'lib'] (besides setting $FindLib::libdir_names)
+
+=item * how does it work when there are subrefs in @INC? (eg. scripts running from PAR archives)
+
+=back
+
+=head1 CAVEATS
+
+=over
+
+=item *
+
+It uses C<$FindBin::RealBin> instead of C<$FindBin::Bin> (see
+L<FindBin/"EXPORTABLE VARIABLES">). It's hard to fix, as the implementation
+depends on L<Cwd/realpath> (and that converts C<$FindBin::Bin> into
+C<$FindBin::RealBin> anyways).
+
+=item *
+
+It does not C<use> the module for you, just C<require> it - you have to C<use>
+it yourself. And that's fine.
+
+=item *
+
+If the module to be found can be found using your original C<@INC>, then no
+parent directory scanning is performed (and consequently nothing is prepended
+to C<@INC>). (It's near to impossible to implement shadowing other modules on
+C<@INC> while using Perl's internal module search implementation to find the
+module.)
+
+=back
+
 =head1 SEE ALSO
 
-L<FindBin>
+L<FindBin>, L<Cwd>
 
 =head1 AUTHOR
 
@@ -137,19 +231,17 @@ Norbert Buchmüller, C<< <norbi at nix.hu> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-findlib at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=FindLib>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-
-
+Please report any bugs or feature requests to C<bug-findlib at rt.cpan.org>, or
+through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=FindLib>. I will be notified,
+and then you'll automatically be notified of progress on your bug as I make
+changes.
 
 =head1 SUPPORT
 
 You can find documentation for this module with the perldoc command.
 
     perldoc FindLib
-
 
 You can also look for information at:
 
@@ -173,17 +265,12 @@ L<http://search.cpan.org/dist/FindLib/>
 
 =back
 
-
-=head1 ACKNOWLEDGEMENTS
-
-
 =head1 COPYRIGHT & LICENSE
 
 Copyright 2009 Norbert Buchmüller, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
-
 
 =cut
 
