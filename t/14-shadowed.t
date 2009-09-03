@@ -11,28 +11,37 @@ use FindLib ();
 
 {
   my $base_dir = "$FindBin::Bin/data/shadowed";
-  push @INC, "$base_dir/b/lib";
-  my @old_INC = @INC;
-  local %INC = %INC;
-  local @INC = @INC;
-  local $FindBin::RealBin = "$base_dir/a/bin";
-  local $FindLib::max_scan_iterations = 1;
-  local $Module::To::Find::magic = undef;
 
-  lives_ok {
-    FindLib::findlib('Module::To::Find');
-  } "findlib() does not die if the module can be found";
+  local @INC = ("$base_dir/b/lib", @INC);
+  local $Module::To::Find::magic = undef;
+  local $FindLib::max_scan_iterations = 1;
+
+  my @newINC;
+  my %newINC;
+
+  {
+    local @INC = @INC;
+    local %INC = %INC;
+    local $FindBin::RealBin = "$base_dir/a/bin";
+
+    lives_ok {
+      FindLib::findlib('Module::To::Find');
+    } "findlib() does not die if the module can be found";
+
+    @newINC = @INC;
+    %newINC = %INC;
+  }
 
   is(
-    $INC{'Module/To/Find.pm'},
+    $newINC{'Module/To/Find.pm'},
     "$base_dir/b/lib/Module/To/Find.pm",
     "findlib() finds the module in dir in the original \@INC (and does not seek " .
     "upwards)"
   );
 
   cmp_deeply(
+    \@newINC,
     \@INC,
-    \@old_INC,
     "\@INC is not changed if the module can be found using the original \@INC"
   );
 

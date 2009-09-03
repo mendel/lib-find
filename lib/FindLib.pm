@@ -1,6 +1,5 @@
 package FindLib;
 
-#TODO fix/workaround subroutine redefined warnings caused by calling cmp_deeply with %INC localized (it loads its sub-modules when it encounters new data types)
 #TODO tests for modules with file permisson problems, syntax errors, missing 1; at the end
 #TODO test to check if @INC in the module is the original @INC just one dir prepended
 #TODO some way to find the app root: either a separate module (use FindApp 'My::App'; say $FindApp::Root;) or dynamically create variables in this package (use FindLib 'My::App'; say $FindLib::My::App::lib;)
