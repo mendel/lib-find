@@ -1,7 +1,10 @@
 package FindLib;
 
+#TODO fix/workaround subroutine redefined warnings caused by calling cmp_deeply with %INC localized (it loads its sub-modules when it encounters new data types)
+#TODO tests for modules with file permisson problems, syntax errors, missing 1; at the end
+#TODO test to check if @INC in the module is the original @INC just one dir prepended
 #TODO describe how it works (ie. require()s the module - but does not use() it, you have to do it yourself)
-#TODO document that it prefers modules in the updir libdirs over the system @INC paths
+#TODO document what happens if the dir of the module is already in @INC (ie. tries to find the module using the original @INC first, no shadowing - impossible to implement properly)
 #TODO option to specify alternatives to ['blib', 'lib']
 #TODO what about subrefs in @INC? (eg. scripts running from PAR archives)
 
@@ -88,6 +91,10 @@ sub findlib
 
   (my $module_inc_key = "$module_name.pm") =~ s{::}{/}g;
 
+  # try if it's already in @INC
+  eval "require $module_name";
+  return if $@ eq "";
+
   if (!exists $INC{$module_inc_key}) {
     my @libdirs;
 
@@ -111,8 +118,7 @@ sub findlib
       unshift @INC, $libdir;
       eval "require $module_name";
       last if $@ eq "";
-      #FIXME only drop the first occurrence of $libdir from @INC - create test for it
-      @INC = grep { $_ ne $libdir } @INC;
+      shift @INC;
     }
   }
 
