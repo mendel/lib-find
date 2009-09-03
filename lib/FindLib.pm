@@ -112,6 +112,7 @@ sub findlib
       unshift @INC, $libdir;
       eval "require $module_name";
       last if $@ eq "";
+      #FIXME only drop the first occurrence of $libdir from @INC - create test for it
       @INC = grep { $_ ne $libdir } @INC;
     }
   }
