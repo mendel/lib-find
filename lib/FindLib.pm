@@ -1,7 +1,7 @@
 package FindLib;
 
 #TODO describe how it works (ie. require()s the module - but does not use() it, you have to do it yourself)
-#TODO tests: use()ing a module that itself modifies @INC (the modification must be permanent); testing that in the module that is to be found @INC only contains the original value of @INC plus the dir of the module (ie. no map { "$_/lib", "$_/blib" } @parent_dirs_of_FindBin_Bin is in @INC)
+#TODO tests: use()ing a module that itself modifies @INC (the modification must be permanent)
 #TODO document that it prefers modules in the updir libdirs over the system @INC paths
 #TODO option to specify alternatives to ['blib', 'lib']
 #TODO what about subrefs in @INC? (eg. scripts running from PAR archives)
@@ -87,9 +87,9 @@ sub findlib
 {
   my ($module_name) = @_;
 
-  (my $module_filename = "$module_name.pm") =~ s{::}{/}g;
+  (my $module_inc_key = "$module_name.pm") =~ s{::}{/}g;
 
-  if (!exists $INC{$module_filename}) {
+  if (!exists $INC{$module_inc_key}) {
     my @libdirs;
 
     my $dir = $FindBin::RealBin;
@@ -116,11 +116,9 @@ sub findlib
     }
   }
 
-  if (!exists $INC{$module_filename}) {
+  if (!exists $INC{$module_inc_key}) {
     croak "Module '$module_name' not found when scanning upwards from '$FindBin::RealBin'";
   }
-
-  push @INC, $INC{$module_filename};
 }
 
 =head1 SEE ALSO

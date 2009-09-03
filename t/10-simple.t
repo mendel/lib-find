@@ -19,6 +19,7 @@ use FindLib ();
 
   while (my ($bin_path, $expected_inc) =  each %bin_path_to_inc) {
     my $base_dir = "$FindBin::Bin/data/simple";
+    my @old_INC = @INC;
     local %INC = %INC;
     local @INC = @INC;
     local $FindBin::RealBin = "$base_dir/$bin_path";
@@ -34,6 +35,12 @@ use FindLib ();
       "findlib() finds the right dir ('$bin_path' => '$expected_inc')"
     );
 
+    cmp_deeply(
+      \@INC,
+      ["$base_dir/$expected_inc", @old_INC],
+      "only the right libdir is added to the beginning of \@INC and no other changes"
+    );
+
     is(
       $Module::To::Find::magic,
       'FindLib',
@@ -43,6 +50,7 @@ use FindLib ();
 
   while (my ($bin_path, $expected_inc) =  each %bin_path_to_inc) {
     my $base_dir = "$FindBin::Bin/data/simple";
+    my @old_INC = @INC;
     local %INC = %INC;
     local @INC = @INC;
     local $FindBin::RealBin = "$base_dir/$bin_path";
@@ -60,6 +68,12 @@ use FindLib ();
       $INC{'Module/To/Find.pm'},
       "$base_dir/$expected_inc/Module/To/Find.pm",
       "\"use FindLib 'Module::To::Find'\" finds the right dir ('$bin_path' => '$expected_inc')"
+    );
+
+    cmp_deeply(
+      \@INC,
+      ["$base_dir/$expected_inc", @old_INC],
+      "only the right libdir is added to the beginning of \@INC and no other changes"
     );
 
     is(
