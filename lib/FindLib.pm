@@ -11,6 +11,8 @@ package FindLib;
 use warnings;
 use strict;
 
+use 5.005;
+
 use FindBin;
 use File::Spec;
 use Cwd;
@@ -93,7 +95,6 @@ sub findlib
 
   # try if it's already in @INC
   eval "require $module_name";
-  return if $@ eq "";
 
   if (!exists $INC{$module_inc_key}) {
     my @libdirs;
