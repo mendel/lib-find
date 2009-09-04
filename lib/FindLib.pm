@@ -1,5 +1,6 @@
 package FindLib;
 
+#TODO convert %FindLib::Lib into a tied hash (so the libdir of any module can be queried, not only those that are found by FindLib) ?
 #TODO rewrite SYNOPSIS and DESCRIPTION a bit: the module has two separate uses: 1. find the libdir of any or the current module, 2. scan dirs upwards to find a module and unshift its libdir to @INC
 
 use warnings;
