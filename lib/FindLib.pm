@@ -1,5 +1,10 @@
 package FindLib;
 
+#TODO rename findlib() to find_lib()
+#TODO rename %FindLib::lib to %FindLib::Lib
+#TODO create a $FindLib::Lib tied scalar variable that returns $FindLib::Lib{caller()}, write tests for it
+#TODO rewrite SYNOPSIS and DESCRIPTION a bit: the module has two separate uses: 1. find the libdir of any or the current module, 2. scan dirs upwards to find a module and unshift its libdir to @INC
+
 use warnings;
 use strict;
 
