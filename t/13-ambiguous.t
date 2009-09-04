@@ -24,8 +24,8 @@ use FindLib ();
     local $FindBin::RealBin = "$base_dir/a/b/c/bin";
 
     lives_ok {
-      FindLib::findlib('Module::To::Find');
-    } "findlib() does not die if the module can be found";
+      FindLib::find_lib('Module::To::Find');
+    } "find_lib() does not die if the module can be found";
 
     @newINC = @INC;
     %newINC = %INC;
@@ -34,13 +34,13 @@ use FindLib ();
   is(
     $newINC{'Module/To/Find.pm'},
     "$base_dir/a/b/lib/Module/To/Find.pm",
-    "findlib() finds the module in the deepest dir when there are alternatives"
+    "find_lib() finds the module in the deepest dir when there are alternatives"
   );
 
   is(
     $Module::To::Find::magic,
     'FindLib - a/b/lib',
-    "findlib() loads the right module indeed"
+    "find_lib() loads the right module indeed"
   );
 }
 

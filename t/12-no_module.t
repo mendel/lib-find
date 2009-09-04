@@ -23,9 +23,9 @@ use FindLib ();
     local $FindBin::RealBin = "$base_dir/a/b/c/d/bin";
 
     throws_ok {
-      FindLib::findlib('Module::To::Find');
+      FindLib::find_lib('Module::To::Find');
     } qr/^Module 'Module::To::Find' not found when scanning upwards from '\Q$FindBin::RealBin\E'/,
-      "findlib() dies with the proper error message if the module cannot be found";
+      "find_lib() dies with the proper error message if the module cannot be found";
 
     @newINC = @INC;
     %newINC = %INC;
@@ -34,7 +34,7 @@ use FindLib ();
   cmp_deeply(
     \@newINC,
     \@INC,
-    "findlib() does not touch \@INC if the module cannot be found"
+    "find_lib() does not touch \@INC if the module cannot be found"
   );
 }
 

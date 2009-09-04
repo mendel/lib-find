@@ -23,9 +23,9 @@ use FindLib ();
     local $FindBin::RealBin = "$base_dir/a/b/c/d/bin";
 
     throws_ok {
-      FindLib::findlib('Module::To::Find');
+      FindLib::find_lib('Module::To::Find');
     } qr/^No libdir candidates \(.*\) found when scanning upwards from '\Q$FindBin::RealBin\E'/,
-      "findlib() dies with the proper error message if no libdir candidates found";
+      "find_lib() dies with the proper error message if no libdir candidates found";
 
     @newINC = @INC;
     %newINC = %INC;
@@ -34,7 +34,7 @@ use FindLib ();
   cmp_deeply(
     \@newINC,
     \@INC,
-    "findlib() does not touch \@INC if no libdir candidates found"
+    "find_lib() does not touch \@INC if no libdir candidates found"
   );
 }
 

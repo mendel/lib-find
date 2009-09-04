@@ -1,6 +1,5 @@
 package FindLib;
 
-#TODO rename findlib() to find_lib()
 #TODO rename %FindLib::lib to %FindLib::Lib
 #TODO create a $FindLib::Lib tied scalar variable that returns $FindLib::Lib{caller()}, write tests for it
 #TODO rewrite SYNOPSIS and DESCRIPTION a bit: the module has two separate uses: 1. find the libdir of any or the current module, 2. scan dirs upwards to find a module and unshift its libdir to @INC
@@ -187,7 +186,7 @@ sub import
 {
   my ($caller, $module_name) = (shift, @_);
 
-  goto \&findlib;
+  goto \&find_lib;
 }
 
 #
@@ -244,7 +243,7 @@ sub _libdir_path($$)
   );
 }
 
-=head2 findlib([$module_name])
+=head2 find_lib([$module_name])
 
 Performs the scanning of parent dirs and prepending the libdir to C<@INC> on
 success.
@@ -253,12 +252,12 @@ If C<$module_name> is omitted, it defaults to the current package
 (C<__PACKAGE__>). This does not make sense for searching for the libdir, but as
 a side-effect it sets C<< $FindLib::lib{+__PACKAGE__} >>.
 
-C<< use FindLib 'My::App' >> is equivalent to C<< FindLib::findlib('My::App')
->> (and C<< use FindLib; >> is equivalent to C<< FindLib::findlib() >>).
+C<< use FindLib 'My::App' >> is equivalent to C<< FindLib::find_lib('My::App')
+>> (and C<< use FindLib; >> is equivalent to C<< FindLib::find_lib() >>).
 
 =cut
 
-sub findlib
+sub find_lib
 {
   my ($module_name) = @_;
 

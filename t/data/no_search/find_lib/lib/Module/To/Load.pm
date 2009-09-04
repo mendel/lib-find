@@ -2,7 +2,7 @@ package Module::To::Load;
 
 use FindLib ();
 
-FindLib::findlib();
+FindLib::find_lib();
 
 our $lib_dir = $FindLib::lib{+__PACKAGE__};
 

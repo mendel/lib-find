@@ -116,13 +116,13 @@ use FindLib ();
     local $Module::To::Find::lib_dir = undef;
 
     lives_ok {
-      FindLib::findlib('Module::To::Find');
-    } "findlib() does not die if the module can be found";
+      FindLib::find_lib('Module::To::Find');
+    } "find_lib() does not die if the module can be found";
 
     is(
       $FindLib::lib{'Module::To::Find'},
       "$base_dir/lib",
-      "findlib() sets up the \%FindLib::lib slot with the right path"
+      "find_lib() sets up the \%FindLib::lib slot with the right path"
     );
 
     is(

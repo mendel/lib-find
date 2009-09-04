@@ -25,7 +25,7 @@ use FindLib ();
 
     lives_ok {
       eval "use Module::To::Load"; die if $@ ne "";
-    } "\"use FindLib (); findlib();\" does not die";
+    } "\"use FindLib (); FindLib::find_lib();\" does not die";
 
     @newINC = @INC;
     %newINC = %INC;
@@ -33,14 +33,14 @@ use FindLib ();
     is(
       $FindLib::lib{'Module::To::Load'},
       "$base_dir/lib",
-      "\"use FindLib (); FindLib::findlib();\" sets up the \%FindLib::lib slot with the " .
+      "\"use FindLib (); FindLib::find_lib();\" sets up the \%FindLib::lib slot with the " .
       "right path"
     );
 
     is(
       $Module::To::Load::lib_dir,
       "$base_dir/lib",
-      "\"use FindLib (); FindLib::findlib();\" sets up the \%FindLib::lib slot to the " .
+      "\"use FindLib (); FindLib::find_lib();\" sets up the \%FindLib::lib slot to the " .
       "right path during the require"
     );
   }
@@ -48,7 +48,7 @@ use FindLib ();
   cmp_deeply(
     \@newINC,
     \@INC,
-    "\"use FindLib (); FindLib::findlib();\" does not touch \@INC"
+    "\"use FindLib (); FindLib::find_lib();\" does not touch \@INC"
   );
 }
 

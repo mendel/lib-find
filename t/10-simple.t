@@ -32,8 +32,8 @@ use FindLib ();
       local $FindBin::RealBin = "$base_dir/$bin_path";
 
       lives_ok {
-        FindLib::findlib('Module::To::Find');
-      } "findlib() does not die if the module can be found ('$bin_path' => '$expected_inc')";
+        FindLib::find_lib('Module::To::Find');
+      } "find_lib() does not die if the module can be found ('$bin_path' => '$expected_inc')";
 
       @newINC = @INC;
       %newINC = %INC;
@@ -42,7 +42,7 @@ use FindLib ();
     is(
       $newINC{'Module/To/Find.pm'},
       "$base_dir/$expected_inc/Module/To/Find.pm",
-      "findlib() finds the right dir ('$bin_path' => '$expected_inc')"
+      "find_lib() finds the right dir ('$bin_path' => '$expected_inc')"
     );
 
     cmp_deeply(
@@ -60,7 +60,7 @@ use FindLib ();
     is(
       $Module::To::Find::magic,
       'FindLib',
-      "findlib() loads the right module"
+      "find_lib() loads the right module"
     );
   }
 
