@@ -1,6 +1,5 @@
 package FindLib;
 
-#TODO create a $FindLib::Lib tied scalar variable that returns $FindLib::Lib{caller()}, write tests for it
 #TODO rewrite SYNOPSIS and DESCRIPTION a bit: the module has two separate uses: 1. find the libdir of any or the current module, 2. scan dirs upwards to find a module and unshift its libdir to @INC
 
 use warnings;
@@ -13,6 +12,8 @@ use File::Spec;
 use Cwd;
 use Carp;
 use Data::Thunk;
+
+use FindLib::Lib;
 
 =head1 NAME
 
@@ -165,7 +166,7 @@ used to find.
 It is already set when the module to be found is being compiled (ie. you can
 use C<< $FindBin::lib{+__PACKAGE__} >> there). (To be perfectly honest, it is
 set to a thunk (lazily evaluated value) provided by L<Data::Thunk>, but most of
-the time it does not matter for you.)
+the time it does not matter for you.) See also L<$FindBin::Lib>.
 
 So you can use libdirs relative to the libdir of the current module:
 
@@ -176,6 +177,24 @@ So you can use libdirs relative to the libdir of the current module:
 =cut
 
 our %Lib;
+
+=head2 $FindLib::Lib
+
+A tied scalar variable that returns the value of L<%FindBin::Lib> hash slot that
+corresponds to the current module (ie. where this variable evaluated from).
+
+Everything described at L<%FindLib::Lib> applies to this variable, too.
+
+This variable is especially convenient when you want to use libdirs relative to
+the libdir of the current module:
+
+    use FindLib;
+
+    use lib "$FindLib::Lib/../utils/lib";
+
+=cut
+
+tie our $Lib, 'FindLib::Lib';
 
 =head1 FUNCTIONS
 

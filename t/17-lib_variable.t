@@ -107,7 +107,7 @@ use FindLib ();
 }
 
 {
-  my $base_dir = "$FindBin::Bin/data/lib_variable";
+  my $base_dir = "$FindBin::Bin/data/lib_variable/hash";
 
   {
     local @INC = @INC;
@@ -129,6 +129,27 @@ use FindLib ();
       $Module::To::Find::lib_dir,
       "$base_dir/lib",
       "the \%FindLib::Lib slot is set to the right path during the require"
+    );
+  }
+}
+
+{
+  my $base_dir = "$FindBin::Bin/data/lib_variable/scalar";
+
+  {
+    local @INC = @INC;
+    local %INC = %INC;
+    local $FindBin::RealBin = "$base_dir/bin";
+    local $Module::To::Find::lib_dir = undef;
+
+    lives_ok {
+      FindLib::find_lib('Module::To::Find');
+    } "find_lib() does not die if the module can be found";
+
+    is(
+      $Module::To::Find::lib_dir,
+      "$base_dir/lib",
+      "the \$FindLib::Lib variable is set to the right path during the require"
     );
   }
 }
