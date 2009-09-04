@@ -1,7 +1,5 @@
 package FindLib;
 
-#TODO some way to find the app root: either a separate module (use FindApp 'My::App'; say $FindApp::Root;) or dynamically create variables in this package (use FindLib 'My::App'; say $FindLib::My::App::lib;)
-
 use warnings;
 use strict;
 
@@ -122,6 +120,21 @@ The default is ('blib', 'lib').
 
 our @libdir_names = qw(blib lib);
 
+=head2 %FindLib::lib
+
+Contains the module name - libdir pairs for all the modules that L<FindLib> was
+used to find.
+
+    use FindLib 'My::App';
+
+    # set $app_root to the absolute path of the 'myapp' dir (see the example in
+    # the L</SYNOPSIS>)
+    my $app_root = "$FindLib::lib{'My::App'}/..";
+
+=cut
+
+our %lib;
+
 =head1 FUNCTIONS
 
 =cut
@@ -131,6 +144,53 @@ sub import
   my ($caller, $module_name) = (shift, @_);
 
   findlib($module_name);
+}
+
+sub _append_dir_to_path($$)
+{
+  my ($path, $dir) = @_;
+
+  my ($volume, $dirs) = File::Spec->splitpath($path, 1);
+  my @dirs = File::Spec->splitdir($dirs);
+
+  return File::Spec->catpath(
+    $volume,
+    File::Spec->catdir(@dirs, $dir),
+    ''
+  );
+}
+
+#
+# my $libdir_path = _libdir_path($module_file, $module_name);
+#
+# Strips off the module name parts of C<$module_name> from the C<$module_file>
+# and returns the path of the libdir.
+#
+sub _libdir_path($$)
+{
+  my ($module_file, $module_name) = @_;
+
+  my @module_name_elems = split /::/, $module_name;
+  $module_name_elems[-1] .= ".pm";
+
+  my ($volume, $dir, $filename) = File::Spec->splitpath($module_file);
+  my @dirs = File::Spec->splitdir($dir);
+  pop @dirs if (@dirs > 1) && $dirs[-1] eq '';
+  my @module_path_elems = (@dirs, $filename);
+
+  my @module_path_elems_to_remove =
+    splice @module_path_elems, -@module_name_elems;
+
+  foreach my $i (1..@module_name_elems) {
+    croak "Inconsistent \%INC: '$module_name' => '$module_file'" if
+      $module_name_elems[-$i] ne $module_path_elems_to_remove[-$i];
+  }
+
+  return File::Spec->catpath(
+    $volume,
+    File::Spec->catdir(@module_path_elems),
+    ''
+  );
 }
 
 =head2 findlib($module_name)
@@ -160,8 +220,8 @@ sub findlib
     my $scan_iterations = 0;
     do {
       push @libdirs, grep { -e $_ }
-        map { File::Spec->catfile($dir, $_) } @libdir_names;
-      $dir = Cwd::realpath(File::Spec->catfile($dir, File::Spec->updir));
+        map { _append_dir_to_path($dir, $_) } @libdir_names;
+      $dir = Cwd::realpath(_append_dir_to_path($dir, File::Spec->updir));
     } while ($dir ne File::Spec->rootdir &&
              $scan_iterations++ < $max_scan_iterations);
 
@@ -179,8 +239,11 @@ sub findlib
     }
   }
 
-  if (!defined $INC{$module_inc_key}) {
-    croak "Module '$module_name' not found when scanning upwards from '$FindBin::RealBin'";
+  if (defined $INC{$module_inc_key}) {
+    $lib{$module_name} = _libdir_path($INC{$module_inc_key}, $module_name);
+  } else {
+    croak "Module '$module_name' not found when scanning upwards from " .
+          "'$FindBin::RealBin'";
   }
 }
 
@@ -188,9 +251,13 @@ sub findlib
 
 =over
 
-=item * option to specify alternatives to ['blib', 'lib'] (besides setting $FindLib::libdir_names)
+=item *
 
-=item * how does it work when there are subrefs in @INC? (eg. scripts running from PAR archives)
+option to specify alternatives to ['blib', 'lib'] (besides setting $FindLib::libdir_names)
+
+=item *
+
+how does it work when there are subrefs in @INC? (eg. scripts running from PAR archives)
 
 =back
 
