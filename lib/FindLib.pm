@@ -312,11 +312,18 @@ sub findlib
 
 =item *
 
-option to specify alternatives to ['blib', 'lib'] (besides setting $FindLib::libdir_names)
+option to specify alternatives to ['blib', 'lib'] (besides setting
+C<$FindLib::libdir_names>)
 
 =item *
 
-how does it work when there are subrefs in @INC? (eg. scripts running from PAR archives)
+how does it work when there are subrefs in @INC? (eg. scripts running from PAR
+archives)
+
+=item *
+
+switch to L<Variable::Lazy> instead of L<Data::Thunk> once L<Variable::Lazy>
+handles putting thunks into hash slots
 
 =back
 
