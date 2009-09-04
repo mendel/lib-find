@@ -9,6 +9,7 @@ use FindBin;
 use File::Spec;
 use Cwd;
 use Carp;
+use Data::Thunk;
 
 =head1 NAME
 
@@ -131,6 +132,11 @@ used to find.
     # the L</SYNOPSIS>)
     my $app_root = "$FindLib::lib{'My::App'}/..";
 
+It is already set when the module to be found is being compiled (ie. you can
+use C<< $FindBin::lib{+__PACKAGE__} >> there). (To be perfectly honest, it is
+set to a thunk (lazily evaluated value) provided by L<Data::Thunk>, but most of
+the time it does not matter for you.)
+
 =cut
 
 our %lib;
@@ -169,6 +175,8 @@ sub _append_dir_to_path($$)
 sub _libdir_path($$)
 {
   my ($module_file, $module_name) = @_;
+
+  return undef unless defined $module_file;
 
   my @module_name_elems = split /::/, $module_name;
   $module_name_elems[-1] .= ".pm";
@@ -209,6 +217,10 @@ sub findlib
 
   (my $module_inc_key = "$module_name.pm") =~ s{::}{/}g;
 
+  $lib{$module_name} = lazy {
+    _libdir_path($INC{$module_inc_key}, $module_name)
+  };
+
   # try if it's already in @INC
   eval "require $module_name";
 
@@ -239,9 +251,7 @@ sub findlib
     }
   }
 
-  if (defined $INC{$module_inc_key}) {
-    $lib{$module_name} = _libdir_path($INC{$module_inc_key}, $module_name);
-  } else {
+  if (!defined $INC{$module_inc_key}) {
     croak "Module '$module_name' not found when scanning upwards from " .
           "'$FindBin::RealBin'";
   }

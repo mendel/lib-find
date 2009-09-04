@@ -107,23 +107,30 @@ use FindLib ();
 }
 
 {
-  my $base_dir = "$FindBin::Bin/data/simple/0-level";
+  my $base_dir = "$FindBin::Bin/data/lib_variable";
 
   {
     local @INC = @INC;
     local %INC = %INC;
     local $FindBin::RealBin = "$base_dir/bin";
+    local $Module::To::Find::lib_dir = undef;
 
     lives_ok {
       FindLib::findlib('Module::To::Find');
     } "findlib() does not die if the module can be found";
-  }
 
-  is(
-    $FindLib::lib{'Module::To::Find'},
-    "$base_dir/lib",
-    "findlib() sets up the \%FindLib::lib slot with the right path"
-  );
+    is(
+      $FindLib::lib{'Module::To::Find'},
+      "$base_dir/lib",
+      "findlib() sets up the \%FindLib::lib slot with the right path"
+    );
+
+    is(
+      $Module::To::Find::lib_dir,
+      "$base_dir/lib",
+      "the \%FindLib::lib slot is set to the right path during the require"
+    );
+  }
 }
 
 done_testing;
