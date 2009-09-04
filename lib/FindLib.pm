@@ -1,6 +1,5 @@
 package FindLib;
 
-#TODO rename %FindLib::lib to %FindLib::Lib
 #TODO create a $FindLib::Lib tied scalar variable that returns $FindLib::Lib{caller()}, write tests for it
 #TODO rewrite SYNOPSIS and DESCRIPTION a bit: the module has two separate uses: 1. find the libdir of any or the current module, 2. scan dirs upwards to find a module and unshift its libdir to @INC
 
@@ -72,7 +71,7 @@ But there's more, you can tweak C<@INC> from the module to be found:
 
     # in My/App.pm
     use FindLib;
-    use lib "$FindLib::lib{+__PACKAGE__}/../utils/lib";
+    use lib "$FindLib::Lib{+__PACKAGE__}/../utils/lib";
 
     # in bin/cron/foo.pl
     use FindLib 'My::App'; # finds the dir upwards that contains
@@ -142,7 +141,7 @@ The default value is 100.
 
 our $max_scan_iterations = 100;
 
-=head2 @FindLib::libdir_names
+=head2 @FindLib::Libdir_names
 
 The relative directory names to look for as libdirs.
 
@@ -152,7 +151,7 @@ The default is ('blib', 'lib').
 
 our @libdir_names = qw(blib lib);
 
-=head2 %FindLib::lib
+=head2 %FindLib::Lib
 
 Contains the module name - libdir pairs for all the modules that L<FindLib> was
 used to find.
@@ -161,7 +160,7 @@ used to find.
 
     # set $app_root to the absolute path of the 'myapp' dir (see the example in
     # the L</SYNOPSIS>)
-    my $app_root = "$FindLib::lib{'My::App'}/..";
+    my $app_root = "$FindLib::Lib{'My::App'}/..";
 
 It is already set when the module to be found is being compiled (ie. you can
 use C<< $FindBin::lib{+__PACKAGE__} >> there). (To be perfectly honest, it is
@@ -172,11 +171,11 @@ So you can use libdirs relative to the libdir of the current module:
 
     use FindLib;
 
-    use lib "$FindLib::lib{+__PACKAGE__}/../utils/lib";
+    use lib "$FindLib::Lib{+__PACKAGE__}/../utils/lib";
 
 =cut
 
-our %lib;
+our %Lib;
 
 =head1 FUNCTIONS
 
@@ -250,7 +249,7 @@ success.
 
 If C<$module_name> is omitted, it defaults to the current package
 (C<__PACKAGE__>). This does not make sense for searching for the libdir, but as
-a side-effect it sets C<< $FindLib::lib{+__PACKAGE__} >>.
+a side-effect it sets C<< $FindLib::Lib{+__PACKAGE__} >>.
 
 C<< use FindLib 'My::App' >> is equivalent to C<< FindLib::find_lib('My::App')
 >> (and C<< use FindLib; >> is equivalent to C<< FindLib::find_lib() >>).
@@ -265,7 +264,7 @@ sub find_lib
 
   (my $module_inc_key = "$module_name.pm") =~ s{::}{/}g;
 
-  $lib{$module_name} = lazy {
+  $Lib{$module_name} = lazy {
     _libdir_path($INC{$module_inc_key}, $module_name)
   };
 
@@ -312,7 +311,7 @@ sub find_lib
 =item *
 
 option to specify alternatives to ['blib', 'lib'] (besides setting
-C<$FindLib::libdir_names>)
+C<$FindLib::Libdir_names>)
 
 =item *
 

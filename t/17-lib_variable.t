@@ -120,15 +120,15 @@ use FindLib ();
     } "find_lib() does not die if the module can be found";
 
     is(
-      $FindLib::lib{'Module::To::Find'},
+      $FindLib::Lib{'Module::To::Find'},
       "$base_dir/lib",
-      "find_lib() sets up the \%FindLib::lib slot with the right path"
+      "find_lib() sets up the \%FindLib::Lib slot with the right path"
     );
 
     is(
       $Module::To::Find::lib_dir,
       "$base_dir/lib",
-      "the \%FindLib::lib slot is set to the right path during the require"
+      "the \%FindLib::Lib slot is set to the right path during the require"
     );
   }
 }

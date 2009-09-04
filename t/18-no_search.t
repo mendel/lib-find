@@ -31,16 +31,16 @@ use FindLib ();
     %newINC = %INC;
 
     is(
-      $FindLib::lib{'Module::To::Load'},
+      $FindLib::Lib{'Module::To::Load'},
       "$base_dir/lib",
-      "\"use FindLib (); FindLib::find_lib();\" sets up the \%FindLib::lib slot with the " .
+      "\"use FindLib (); FindLib::find_lib();\" sets up the \%FindLib::Lib slot with the " .
       "right path"
     );
 
     is(
       $Module::To::Load::lib_dir,
       "$base_dir/lib",
-      "\"use FindLib (); FindLib::find_lib();\" sets up the \%FindLib::lib slot to the " .
+      "\"use FindLib (); FindLib::find_lib();\" sets up the \%FindLib::Lib slot to the " .
       "right path during the require"
     );
   }
@@ -74,15 +74,15 @@ use FindLib ();
     %newINC = %INC;
 
     is(
-      $FindLib::lib{'Module::To::Load'},
+      $FindLib::Lib{'Module::To::Load'},
       "$base_dir/lib",
-      "\"use FindLib;\" sets up the \%FindLib::lib slot with the right path"
+      "\"use FindLib;\" sets up the \%FindLib::Lib slot with the right path"
     );
 
     is(
       $Module::To::Load::lib_dir,
       "$base_dir/lib",
-      "\"use FindLib;\" sets up the \%FindLib::lib slot to the right path " .
+      "\"use FindLib;\" sets up the \%FindLib::Lib slot to the right path " .
       "during the require"
     );
   }
