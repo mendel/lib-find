@@ -39,16 +39,16 @@ use FindLib ();
     "upwards)"
   );
 
-  cmp_deeply(
-    \@newINC,
-    \@INC,
-    "\@INC is not changed if the module can be found using the original \@INC"
-  );
-
   is(
     $Module::To::Find::magic,
     'FindLib - b/lib',
     "findlib() loads the right module indeed"
+  );
+
+  cmp_deeply(
+    \@newINC,
+    \@INC,
+    "\@INC is not changed if the module can be found using the original \@INC"
   );
 }
 
