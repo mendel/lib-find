@@ -2,6 +2,7 @@ use inc::Module::Install 0.91;
 
 name     'FindLib';
 all_from 'lib/FindLib.pm';
+readme_from 'lib/FindLib.pm' => 'clean';
 
 requires 'FindBin' => '1.49';
 requires 'File::Spec' => '3.3';
@@ -16,6 +17,7 @@ if ($Module::Install::AUTHOR) {
 }
 
 configure_requires 'Module::Install::ExtraTests' => 0.006;
+configure_requires 'Module::Install::ReadmeFromPod' => 0.06;
 
 extra_tests;
 
