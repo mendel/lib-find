@@ -1,6 +1,5 @@
 package FindLib;
 
-#TODO tests for modules with syntax errors, missing '1;' at the end - test for both when libdir already in @INC and when it's found using the scan
 #TODO some way to find the app root: either a separate module (use FindApp 'My::App'; say $FindApp::Root;) or dynamically create variables in this package (use FindLib 'My::App'; say $FindLib::My::App::lib;)
 
 use warnings;
@@ -153,7 +152,7 @@ sub findlib
   # try if it's already in @INC
   eval "require $module_name";
 
-  if (!defined $INC{$module_inc_key}) {
+  if (!exists $INC{$module_inc_key}) {
     my @libdirs;
 
     my $dir = $FindBin::RealBin;
