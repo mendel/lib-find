@@ -152,6 +152,11 @@ sub import
   findlib($module_name);
 }
 
+#
+# my $path = _append_dir_to_path($path, $dir);
+#
+# Appends C<$dir> to C<$path> (using L<File::Spec>).
+#
 sub _append_dir_to_path($$)
 {
   my ($path, $dir) = @_;
