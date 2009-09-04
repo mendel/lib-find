@@ -33,7 +33,7 @@ module from it. Stops on the first module found and unshifts its libdir into
 C<@INC>.
 
     # assume this directory layout:
-    # 
+    #
     # myapp/
     # |-- bin
     # |   `-- cron
@@ -44,10 +44,37 @@ C<@INC>.
     #         `-- Schema.pm
     #
 
-    # in foo.pl
+    # in bin/cron/foo.pl
     use FindLib 'My::App'; # finds the dir upwards that contains
                            # My/App.pm and prepends it to @INC
     use My::Schema;        # now found
+
+But there's more, you can tweak C<@INC> from the module to be found:
+
+    # assume this directory layout:
+    #
+    # myapp/
+    # |-- bin
+    # |   `-- cron
+    # |       `-- foo.pl
+    # |-- lib
+    # |   `-- My
+    # |       |-- App.pm
+    # |       `-- Schema.pm
+    # `-- utils
+    #     `-- lib
+    #         `-- Stuff.pm
+    #
+
+    # in My/App.pm
+    use FindLib;
+    use lib "$FindLib::lib{+__PACKAGE__}/../utils/lib";
+
+    # in bin/cron/foo.pl
+    use FindLib 'My::App'; # finds the dir upwards that contains
+                           # My/App.pm and prepends it to @INC
+    use My::Schema;        # now found
+    use Stuff;             # also found b/c we added utils/lib to @INC
 
 =head1 DISCLAIMER
 
@@ -137,6 +164,12 @@ use C<< $FindBin::lib{+__PACKAGE__} >> there). (To be perfectly honest, it is
 set to a thunk (lazily evaluated value) provided by L<Data::Thunk>, but most of
 the time it does not matter for you.)
 
+So you can use libdirs relative to the libdir of the current module:
+
+    use FindLib;
+
+    use lib "$FindLib::lib{+__PACKAGE__}/../utils/lib";
+
 =cut
 
 our %lib;
@@ -149,7 +182,7 @@ sub import
 {
   my ($caller, $module_name) = (shift, @_);
 
-  findlib($module_name);
+  goto \&findlib;
 }
 
 #
@@ -206,19 +239,25 @@ sub _libdir_path($$)
   );
 }
 
-=head2 findlib($module_name)
+=head2 findlib([$module_name])
 
 Performs the scanning of parent dirs and prepending the libdir to C<@INC> on
 success.
 
+If C<$module_name> is omitted, it defaults to the current package
+(C<__PACKAGE__>). This does not make sense for searching for the libdir, but as
+a side-effect it sets C<< $FindLib::lib{+__PACKAGE__} >>.
+
 C<< use FindLib 'My::App' >> is equivalent to C<< FindLib::findlib('My::App')
->>.
+>> (and C<< use FindLib; >> is equivalent to C<< FindLib::findlib() >>).
 
 =cut
 
 sub findlib
 {
   my ($module_name) = @_;
+
+  $module_name = caller unless defined $module_name;
 
   (my $module_inc_key = "$module_name.pm") =~ s{::}{/}g;
 
