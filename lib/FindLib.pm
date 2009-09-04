@@ -32,53 +32,65 @@ our $VERSION = '0.01';
 
 This module starts scanning for directories named C<blib> or C<lib> in the
 parent directories of C<$FindBin::RealBin>, starting with C<$FindBin::RealBin>
-and going upwards. For each libdir candidate it tries to C<require> the named
-module from it. Stops on the first module found and unshifts its libdir into
-C<@INC>.
+and going upwards. For each such libdir candidate it tries to C<require> the
+named module from it. Stops on the first module found and unshifts its libdir
+into C<@INC>.
 
     # assume this directory layout:
     #
-    # myapp/
+    # myapp
     # |-- bin
     # |   `-- cron
     # |       `-- foo.pl
+    # |-- script
+    # |   `-- myapp_server.pl
     # `-- lib
-    #     `-- My
-    #         |-- App.pm
-    #         `-- Schema.pm
+    #     |-- MyApp.pm
+    #     |   |-- Common.pm
+    #     |   `-- Schema.pm
+    #     `-- MySchema.pm
     #
 
     # in bin/cron/foo.pl
-    use FindLib 'My::App'; # finds the dir upwards that contains
-                           # My/App.pm and prepends it to @INC
-    use My::Schema;        # now found
+    use FindLib 'MyApp::Common'; # finds the dir upwards that contains
+                                 # MyApp/Common.pm and prepends it to @INC
+    use MySchema;                # now found
 
-But there's more, you can tweak C<@INC> from the module to be found:
+    # in script/myapp_server.pl
+    use FindLib 'MyApp::Common'; # finds the dir upwards that contains
+                                 # MyApp/Common.pm and prepends it to @INC
+    use MyApp;                   # now found
+
+But there's more, you can tweak C<@INC> from the module being searched for:
 
     # assume this directory layout:
     #
-    # myapp/
+    # myapp
     # |-- bin
     # |   `-- cron
     # |       `-- foo.pl
+    # |-- script
+    # |   `-- myapp_server.pl
     # |-- lib
-    # |   `-- My
-    # |       |-- App.pm
-    # |       `-- Schema.pm
-    # `-- utils
+    # |   |-- MyApp.pm
+    # |   |   |-- Common.pm
+    # |   |   `-- Schema.pm
+    # |   `-- MySchema.pm
+    # `-- stuff
     #     `-- lib
-    #         `-- Stuff.pm
+    #         `-- Thingy.pm
     #
 
-    # in My/App.pm
+    # in MyApp/Common.pm
     use FindLib;
-    use lib "$FindLib::Lib{+__PACKAGE__}/../utils/lib";
+    use lib "$FindLib::Lib/../stuff/lib";
 
     # in bin/cron/foo.pl
-    use FindLib 'My::App'; # finds the dir upwards that contains
-                           # My/App.pm and prepends it to @INC
-    use My::Schema;        # now found
-    use Stuff;             # also found b/c we added utils/lib to @INC
+    use FindLib 'MyApp::Common'; # finds the dir upwards that contains
+                                 # My/App.pm and prepends it to @INC
+    use MyApp::Schema;           # now found
+    use Thingy;                  # also found b/c we added stuff/lib
+                                 # to @INC
 
 =head1 DISCLAIMER
 
@@ -110,17 +122,17 @@ scripts like that:
     use FindBin;
     use lib "$FindBin::Bin/../..";
 
-    use My::App;
-    use My::Schema;
+    use MyApp::Common;
+    use MyApp::Schema;
 
 Now you can write this instead:
 
-    use FindLib 'My::App';
+    use FindLib 'MyApp::Common';
 
-    use My::App;
-    use My::Schema;
+    use MyApp::Common;
+    use MyApp::Schema;
 
-And your script will automagically find the dir where the My::App module
+And your script will automagically find the dir where the MyApp::Common module
 resides.
 
 =head1 EXPORT
@@ -157,22 +169,24 @@ our @libdir_names = qw(blib lib);
 Contains the module name - libdir pairs for all the modules that L<FindLib> was
 used to find.
 
-    use FindLib 'My::App';
+    use FindLib 'MyApp::Common';
 
     # set $app_root to the absolute path of the 'myapp' dir (see the example in
     # the L</SYNOPSIS>)
-    my $app_root = "$FindLib::Lib{'My::App'}/..";
+    my $app_root = "$FindLib::Lib{'MyApp::Common'}/..";
 
-It is already set when the module to be found is being compiled (ie. you can
+It is already set when the module searched for is being compiled (ie. you can
 use C<< $FindBin::lib{+__PACKAGE__} >> there). (To be perfectly honest, it is
 set to a thunk (lazily evaluated value) provided by L<Data::Thunk>, but most of
-the time it does not matter for you.) See also L<$FindBin::Lib>.
+the time it does not matter for you.)
 
 So you can use libdirs relative to the libdir of the current module:
 
     use FindLib;
 
-    use lib "$FindLib::Lib{+__PACKAGE__}/../utils/lib";
+    use lib "$FindLib::Lib{+__PACKAGE__}/../stuff/lib";
+
+See also L<$FindBin::Lib>.
 
 =cut
 
@@ -190,7 +204,7 @@ the libdir of the current module:
 
     use FindLib;
 
-    use lib "$FindLib::Lib/../utils/lib";
+    use lib "$FindLib::Lib/../stuff/lib";
 
 =cut
 
@@ -267,11 +281,13 @@ Performs the scanning of parent dirs and prepending the libdir to C<@INC> on
 success.
 
 If C<$module_name> is omitted, it defaults to the current package
-(C<__PACKAGE__>). This does not make sense for searching for the libdir, but as
-a side-effect it sets C<< $FindLib::Lib{+__PACKAGE__} >>.
+(C<__PACKAGE__>). This does not make much sense when considered as searching
+for the libdir of the module (it's already known), but as a side-effect it sets
+C<< $FindLib::Lib{+__PACKAGE__} >> (also available as C<$FindLib::Lib>).
 
-C<< use FindLib 'My::App' >> is equivalent to C<< FindLib::find_lib('My::App')
->> (and C<< use FindLib; >> is equivalent to C<< FindLib::find_lib() >>).
+C<< use FindLib 'MyApp::Common' >> is equivalent to C<<
+FindLib::find_lib('MyApp::Common') >> (and C<< use FindLib; >> is equivalent to
+C<< FindLib::find_lib() >>).
 
 =cut
 
@@ -362,7 +378,7 @@ it yourself. And that's fine.
 
 =item *
 
-If the module to be found can be found using your original C<@INC>, then no
+If the module searched for can be found using your original C<@INC>, then no
 parent directory scanning is performed (and consequently nothing is prepended
 to C<@INC>). (It's near to impossible to implement shadowing other modules on
 C<@INC> while using Perl's internal module search implementation to find the
