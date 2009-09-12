@@ -120,15 +120,15 @@ use lib::find ();
     } "find_lib() does not die if the module can be found";
 
     is(
-      $lib::find::Lib{'Module::To::Find'},
+      $lib::find::dir{'Module::To::Find'},
       "$base_dir/lib",
-      "find_lib() sets up the \%lib::find::Lib slot with the right path"
+      "find_lib() sets up the \%lib::find::dir slot with the right path"
     );
 
     is(
       $Module::To::Find::lib_dir,
       "$base_dir/lib",
-      "the \%lib::find::Lib slot is set to the right path during the require"
+      "the \%lib::find::dir slot is set to the right path during the require"
     );
   }
 }
@@ -149,7 +149,7 @@ use lib::find ();
     is(
       $Module::To::Find::lib_dir,
       "$base_dir/lib",
-      "the \$lib::find::Lib variable is set to the right path during the require"
+      "the \$lib::find::dir variable is set to the right path during the require"
     );
   }
 }

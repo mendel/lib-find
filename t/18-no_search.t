@@ -31,16 +31,16 @@ use lib::find ();
     %newINC = %INC;
 
     is(
-      $lib::find::Lib{'Module::To::Load'},
+      $lib::find::dir{'Module::To::Load'},
       "$base_dir/lib",
-      "\"use lib::find (); lib::find::find_lib();\" sets up the \%lib::find::Lib slot with the " .
+      "\"use lib::find (); lib::find::find_lib();\" sets up the \%lib::find::dir slot with the " .
       "right path"
     );
 
     is(
       $Module::To::Load::lib_dir,
       "$base_dir/lib",
-      "\"use lib::find (); lib::find::find_lib();\" sets up the \%lib::find::Lib slot to the " .
+      "\"use lib::find (); lib::find::find_lib();\" sets up the \%lib::find::dir slot to the " .
       "right path during the require"
     );
   }
@@ -74,15 +74,15 @@ use lib::find ();
     %newINC = %INC;
 
     is(
-      $lib::find::Lib{'Module::To::Load'},
+      $lib::find::dir{'Module::To::Load'},
       "$base_dir/lib",
-      "\"use lib::find;\" sets up the \%lib::find::Lib slot with the right path"
+      "\"use lib::find;\" sets up the \%lib::find::dir slot with the right path"
     );
 
     is(
       $Module::To::Load::lib_dir,
       "$base_dir/lib",
-      "\"use lib::find;\" sets up the \%lib::find::Lib slot to the right path " .
+      "\"use lib::find;\" sets up the \%lib::find::dir slot to the right path " .
       "during the require"
     );
   }

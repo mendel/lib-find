@@ -1,7 +1,6 @@
 package lib::find;
 
-#TODO rename %lib::find::Lib and $lib::find::libdir to %lib::find::libdir and $lib::find::libdir
-#TODO convert %lib::find::Lib into a tied hash (so the libdir of any module can be queried, not only those that are found by lib::find) ?
+#TODO convert %lib::find::dir into a tied hash (so the libdir of any module can be queried, not only those that are found by lib::find) ?
 #TODO rewrite SYNOPSIS and DESCRIPTION a bit: the module has two separate uses: 1. find the libdir of any or the current module, 2. scan dirs upwards to find a module and unshift its libdir to @INC
 
 use warnings;
@@ -15,7 +14,7 @@ use Cwd;
 use Carp;
 use Data::Thunk;
 
-use lib::find::Lib;
+use lib::find::dir;
 
 =head1 NAME
 
@@ -85,7 +84,7 @@ But there's more, you can tweak C<@INC> from the module being searched for:
 
     # in MyApp/Common.pm
     use lib::find;
-    use lib "$lib::find::Lib/../stuff/lib";
+    use lib "$lib::find::dir/../stuff/lib";
 
     # in bin/cron/foo.pl
     use lib::find 'MyApp::Common'; # finds the dir upwards that contains
@@ -156,7 +155,7 @@ The default value is 100.
 
 our $max_scan_iterations = 100;
 
-=head2 @lib::find::Libdir_names
+=head2 @lib::find::libdir_names
 
 The relative directory names to look for as libdirs.
 
@@ -166,7 +165,7 @@ The default is ('blib', 'lib').
 
 our @libdir_names = qw(blib lib);
 
-=head2 %lib::find::Lib
+=head2 %lib::find::dir
 
 Contains the module name - libdir pairs for all the modules that L<lib::find> was
 used to find.
@@ -175,10 +174,10 @@ used to find.
 
     # set $app_root to the absolute path of the 'myapp' dir (see the example in
     # the L</SYNOPSIS>)
-    my $app_root = "$lib::find::Lib{'MyApp::Common'}/..";
+    my $app_root = "$lib::find::dir{'MyApp::Common'}/..";
 
 It is already set when the module searched for is being compiled (ie. you can
-use C<< $FindBin::lib{+__PACKAGE__} >> there). (To be perfectly honest, it is
+use C<< $lib::find::dir{+__PACKAGE__} >> there). (To be perfectly honest, it is
 set to a thunk (lazily evaluated value) provided by L<Data::Thunk>, but most of
 the time it does not matter for you.)
 
@@ -186,31 +185,31 @@ So you can use libdirs relative to the libdir of the current module:
 
     use lib::find;
 
-    use lib "$lib::find::Lib{+__PACKAGE__}/../stuff/lib";
+    use lib "$lib::find::dir{+__PACKAGE__}/../stuff/lib";
 
-See also L<$FindBin::Lib>.
+See also L<$lib::find::dir>.
 
 =cut
 
-our %Lib;
+our %dir;
 
-=head2 $lib::find::Lib
+=head2 $lib::find::dir
 
-A tied scalar variable that returns the value of L<%FindBin::Lib> hash slot that
+A tied scalar variable that returns the value of L<%lib::find::dir> hash slot that
 corresponds to the current module (ie. where this variable evaluated from).
 
-Everything described at L<%lib::find::Lib> applies to this variable, too.
+Everything described at L<%lib::find::dir> applies to this variable, too.
 
 This variable is especially convenient when you want to use libdirs relative to
 the libdir of the current module:
 
     use lib::find;
 
-    use lib "$lib::find::Lib/../stuff/lib";
+    use lib "$lib::find::dir/../stuff/lib";
 
 =cut
 
-tie our $Lib, 'lib::find::Lib';
+tie our $dir, 'lib::find::dir';
 
 =head1 FUNCTIONS
 
@@ -285,7 +284,7 @@ success.
 If C<$module_name> is omitted, it defaults to the current package
 (C<__PACKAGE__>). This does not make much sense when considered as searching
 for the libdir of the module (it's already known), but as a side-effect it sets
-C<< $lib::find::Lib{+__PACKAGE__} >> (also available as C<$lib::find::Lib>).
+C<< $lib::find::dir{+__PACKAGE__} >> (also available as C<$lib::find::dir>).
 
 C<< use lib::find 'MyApp::Common' >> is equivalent to C<<
 lib::find::find_lib('MyApp::Common') >> (and C<< use lib::find; >> is equivalent to
@@ -301,7 +300,7 @@ sub find_lib
 
   (my $module_inc_key = "$module_name.pm") =~ s{::}{/}g;
 
-  $Lib{$module_name} = lazy {
+  $dir{$module_name} = lazy {
     _libdir_path($INC{$module_inc_key}, $module_name)
   };
 
@@ -348,7 +347,7 @@ sub find_lib
 =item *
 
 option to specify alternatives to ['blib', 'lib'] (besides setting
-C<$lib::find::Libdir_names>)
+C<$lib::find::libdir_names>)
 
 =item *
 
