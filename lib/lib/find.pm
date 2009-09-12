@@ -14,7 +14,7 @@ use Cwd;
 use Carp;
 use Data::Thunk;
 
-use lib::find::dir;
+use lib::find::dir::Scalar;
 
 =head1 NAME
 
@@ -209,7 +209,7 @@ the libdir of the current module:
 
 =cut
 
-tie our $dir, 'lib::find::dir';
+tie our $dir, 'lib::find::dir::Scalar';
 
 =head1 FUNCTIONS
 

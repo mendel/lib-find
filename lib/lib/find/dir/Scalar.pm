@@ -1,4 +1,4 @@
-package lib::find::dir;
+package lib::find::dir::Scalar;
 
 use warnings;
 use strict;
@@ -8,7 +8,7 @@ use base qw(Tie::StdScalar);
 
 =head1 NAME
 
-lib::find::dir - lib::find internals - implement $lib::find::dir tied scalar
+lib::find::dir::Scalar - lib::find internals - implement $lib::find::dir tied scalar
 
 =cut
 
