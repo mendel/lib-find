@@ -95,7 +95,15 @@ sub NEXTKEY
 {
   my ($self) = (shift, @_);
 
-  return $self->FETCH(shift @{$self->{inc_keys_snapshot}});
+  my $module_inc_key = shift @{$self->{inc_keys_snapshot}};
+
+  return undef unless defined $module_inc_key;
+
+  my $module_name = $module_inc_key;
+  $module_name =~ s/\.pm$//;
+  $module_name =~ s{/}{::}g;
+
+  return $module_name;
 }
 
 =head2 SCALAR
