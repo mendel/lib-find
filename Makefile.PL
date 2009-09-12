@@ -9,7 +9,6 @@ requires 'FindBin' => '1.49';
 requires 'File::Spec' => '3.3';
 requires 'Cwd' => '3.3';
 requires 'Carp' => '1.08';
-requires 'Data::Thunk' => '0.05';
 requires 'Tie::Scalar' => '1.00';
 
 test_requires 'Test::Most' => '0.21';

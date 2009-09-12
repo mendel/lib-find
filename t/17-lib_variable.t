@@ -71,6 +71,8 @@ use lib::find ();
       $path_filename
     );
 
+    (my $inc_key = "$test->{module}.pm") =~ s{::}{/}g;
+
     my $expected_libdir =
         File::Spec->catpath(
           '',
@@ -80,9 +82,10 @@ use lib::find ();
 
     my $test_sub = sub {
       local $Test::Builder::Level = $Test::Builder::Level + 1;
+      local $INC{$inc_key} = $path;
 
       is(
-        lib::find::_libdir_path($path, $test->{module}),
+        lib::find::_libdir_path($test->{module}),
         $expected_libdir,
         "$test->{desc} - _libdir_path() returns the right dir"
       );

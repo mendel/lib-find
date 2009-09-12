@@ -1,6 +1,7 @@
 package lib::find;
 
-#TODO convert %lib::find::dir into a tied hash (so the libdir of any module can be queried, not only those that are found by lib::find) ?
+#TODO inline the $dir and %dir tie modules
+#TODO create TODO tests (and add TODO doc) for inlined module case (ie. when in one file there are some auxiliary modules and the user asks for any of them)
 #TODO rewrite SYNOPSIS and DESCRIPTION a bit: the module has two separate uses: 1. find the libdir of any or the current module, 2. scan dirs upwards to find a module and unshift its libdir to @INC
 
 use warnings;
@@ -12,8 +13,8 @@ use FindBin;
 use File::Spec;
 use Cwd;
 use Carp;
-use Data::Thunk;
 
+use lib::find::dir::Hash;
 use lib::find::dir::Scalar;
 
 =head1 NAME
@@ -167,8 +168,8 @@ our @libdir_names = qw(blib lib);
 
 =head2 %lib::find::dir
 
-Contains the module name - libdir pairs for all the modules that L<lib::find> was
-used to find.
+A tied hash variable that returns the libdir value for the given module name
+(if it's already loaded - it uses L<perlvar/%INC>).
 
     use lib::find 'MyApp::Common';
 
@@ -176,22 +177,19 @@ used to find.
     # the L</SYNOPSIS>)
     my $app_root = "$lib::find::dir{'MyApp::Common'}/..";
 
-It is already set when the module searched for is being compiled (ie. you can
-use C<< $lib::find::dir{+__PACKAGE__} >> there). (To be perfectly honest, it is
-set to a thunk (lazily evaluated value) provided by L<Data::Thunk>, but most of
-the time it does not matter for you.)
-
-So you can use libdirs relative to the libdir of the current module:
+Since L<perlvar/%INC> is already set when the module searched for is being
+compiled, you can use C<< $lib::find::dir{+__PACKAGE__} >> there. So you can
+use libdirs relative to the libdir of any module:
 
     use lib::find;
 
     use lib "$lib::find::dir{+__PACKAGE__}/../stuff/lib";
 
-See also L<$lib::find::dir>.
+See also L<$lib::find::dir> for a more compact syntax.
 
 =cut
 
-our %dir;
+tie our %dir, 'lib::find::dir::Hash', '%' . __PACKAGE__ . '::dir';
 
 =head2 $lib::find::dir
 
@@ -209,7 +207,7 @@ the libdir of the current module:
 
 =cut
 
-tie our $dir, 'lib::find::dir::Scalar';
+tie our $dir, 'lib::find::dir::Scalar', '$' . __PACKAGE__ . '::dir';
 
 =head1 FUNCTIONS
 
@@ -241,15 +239,38 @@ sub _append_dir_to_path($$)
   );
 }
 
+
 #
-# my $libdir_path = _libdir_path($module_file, $module_name);
+# my $module_inc_key = _module_inc_key($module_name);
 #
-# Strips off the module name parts of C<$module_name> from the C<$module_file>
-# and returns the path of the libdir.
+# Returns the key for the L<perlvar/%INC> hash that corresponds to
+# C<$module_name>. Returns C<undef> if C<$module_name> is not defined.
 #
-sub _libdir_path($$)
+sub _module_inc_key($)
 {
-  my ($module_file, $module_name) = @_;
+  my ($module_name) = @_;
+
+  return undef unless defined $module_name;
+
+  (my $module_inc_key = "$module_name.pm") =~ s{::}{/}g;
+
+  return $module_inc_key;
+}
+
+#
+# my $libdir_path = _libdir_path($module_name);
+#
+# Strips off the module name parts from the the module file of C<$module_name>
+# found in L<perlvar/%INC> and returns the path of the libdir. Returns
+# C<undef> if C<$module_name> is not defined or if that module is not loaded.
+#
+sub _libdir_path($)
+{
+  my ($module_name) = @_;
+
+  return undef unless defined $module_name;
+
+  my $module_file = $INC{_module_inc_key($module_name)};
 
   return undef unless defined $module_file;
 
@@ -281,10 +302,7 @@ sub _libdir_path($$)
 Performs the scanning of parent dirs and prepending the libdir to C<@INC> on
 success.
 
-If C<$module_name> is omitted, it defaults to the current package
-(C<__PACKAGE__>). This does not make much sense when considered as searching
-for the libdir of the module (it's already known), but as a side-effect it sets
-C<< $lib::find::dir{+__PACKAGE__} >> (also available as C<$lib::find::dir>).
+No-op if C<$module_name> is omitted or not defined.
 
 C<< use lib::find 'MyApp::Common' >> is equivalent to C<<
 lib::find::find_lib('MyApp::Common') >> (and C<< use lib::find; >> is equivalent to
@@ -296,13 +314,9 @@ sub find_lib
 {
   my ($module_name) = @_;
 
-  $module_name = caller unless defined $module_name;
+  return unless defined $module_name;
 
-  (my $module_inc_key = "$module_name.pm") =~ s{::}{/}g;
-
-  $dir{$module_name} = lazy {
-    _libdir_path($INC{$module_inc_key}, $module_name)
-  };
+  my $module_inc_key = _module_inc_key($module_name);
 
   # try if it's already in @INC
   eval "require $module_name";
@@ -353,11 +367,6 @@ C<$lib::find::libdir_names>)
 
 how does it work when there are subrefs in @INC? (eg. scripts running from PAR
 archives)
-
-=item *
-
-switch to L<Variable::Lazy> instead of L<Data::Thunk> once L<Variable::Lazy>
-handles putting thunks into hash slots
 
 =back
 
