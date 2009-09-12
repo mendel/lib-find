@@ -193,8 +193,9 @@ tie our %dir, 'lib::find::dir::Hash', '%' . __PACKAGE__ . '::dir';
 
 =head2 $lib::find::dir
 
-A tied scalar variable that returns the value of L<%lib::find::dir> hash slot that
-corresponds to the current module (ie. where this variable evaluated from).
+A tied scalar variable that returns the value of the L<%lib::find::dir> hash
+slot that corresponds to the current module (ie. where this variable evaluated
+from).
 
 Everything described at L<%lib::find::dir> applies to this variable, too.
 
