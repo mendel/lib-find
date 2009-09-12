@@ -7,13 +7,13 @@ use FindBin;
 
 use Test::Most;
 
-use FindLib ();
+use lib::find ();
 
 {
   my $base_dir = "$FindBin::Bin/data/ambiguous";
 
   local $Module::To::Find::magic = undef;
-  local $FindLib::max_scan_iterations = 4;
+  local $lib::find::max_scan_iterations = 4;
 
   my @newINC;
   my %newINC;
@@ -24,7 +24,7 @@ use FindLib ();
     local $FindBin::RealBin = "$base_dir/a/b/c/bin";
 
     lives_ok {
-      FindLib::find_lib('Module::To::Find');
+      lib::find::find_lib('Module::To::Find');
     } "find_lib() does not die if the module can be found";
 
     @newINC = @INC;
@@ -39,7 +39,7 @@ use FindLib ();
 
   is(
     $Module::To::Find::magic,
-    'FindLib - a/b/lib',
+    'lib::find - a/b/lib',
     "find_lib() loads the right module indeed"
   );
 }

@@ -7,14 +7,14 @@ use FindBin;
 
 use Test::Most;
 
-use FindLib ();
+use lib::find ();
 
 {
   my $base_dir = "$FindBin::Bin/data/shadowed";
 
   local @INC = ("$base_dir/b/lib", @INC);
   local $Module::To::Find::magic = undef;
-  local $FindLib::max_scan_iterations = 1;
+  local $lib::find::max_scan_iterations = 1;
 
   my @newINC;
   my %newINC;
@@ -25,7 +25,7 @@ use FindLib ();
     local $FindBin::RealBin = "$base_dir/a/bin";
 
     lives_ok {
-      FindLib::find_lib('Module::To::Find');
+      lib::find::find_lib('Module::To::Find');
     } "find_lib() does not die if the module can be found";
 
     @newINC = @INC;
@@ -41,7 +41,7 @@ use FindLib ();
 
   is(
     $Module::To::Find::magic,
-    'FindLib - b/lib',
+    'lib::find - b/lib',
     "find_lib() loads the right module indeed"
   );
 

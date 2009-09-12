@@ -8,7 +8,7 @@ use File::Spec;
 
 use Test::Most;
 
-use FindLib ();
+use lib::find ();
 
 {
   my @tests = (
@@ -82,7 +82,7 @@ use FindLib ();
       local $Test::Builder::Level = $Test::Builder::Level + 1;
 
       is(
-        FindLib::_libdir_path($path, $test->{module}),
+        lib::find::_libdir_path($path, $test->{module}),
         $expected_libdir,
         "$test->{desc} - _libdir_path() returns the right dir"
       );
@@ -116,19 +116,19 @@ use FindLib ();
     local $Module::To::Find::lib_dir = undef;
 
     lives_ok {
-      FindLib::find_lib('Module::To::Find');
+      lib::find::find_lib('Module::To::Find');
     } "find_lib() does not die if the module can be found";
 
     is(
-      $FindLib::Lib{'Module::To::Find'},
+      $lib::find::Lib{'Module::To::Find'},
       "$base_dir/lib",
-      "find_lib() sets up the \%FindLib::Lib slot with the right path"
+      "find_lib() sets up the \%lib::find::Lib slot with the right path"
     );
 
     is(
       $Module::To::Find::lib_dir,
       "$base_dir/lib",
-      "the \%FindLib::Lib slot is set to the right path during the require"
+      "the \%lib::find::Lib slot is set to the right path during the require"
     );
   }
 }
@@ -143,13 +143,13 @@ use FindLib ();
     local $Module::To::Find::lib_dir = undef;
 
     lives_ok {
-      FindLib::find_lib('Module::To::Find');
+      lib::find::find_lib('Module::To::Find');
     } "find_lib() does not die if the module can be found";
 
     is(
       $Module::To::Find::lib_dir,
       "$base_dir/lib",
-      "the \$FindLib::Lib variable is set to the right path during the require"
+      "the \$lib::find::Lib variable is set to the right path during the require"
     );
   }
 }

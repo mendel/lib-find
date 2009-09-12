@@ -7,7 +7,7 @@ use FindBin;
 
 use Test::Most;
 
-use FindLib ();
+use lib::find ();
 
 {
   my $base_dir = "$FindBin::Bin/data/inc_modifier";
@@ -21,7 +21,7 @@ use FindLib ();
     local $FindBin::RealBin = "$base_dir/bin";
 
     lives_ok {
-      FindLib::find_lib('Module::To::Find');
+      lib::find::find_lib('Module::To::Find');
     } "find_lib() does not die if the module can be found";
 
     @newINC = @INC;
@@ -30,7 +30,7 @@ use FindLib ();
 
   eq_or_diff(
     \@newINC,
-    ['FindLibPre', "$base_dir/lib", @INC, 'FindLibPost'],
+    ['lib::find-pre', "$base_dir/lib", @INC, 'lib::find-post'],
     "the modifications to \@INC by the loaded module are kept"
   );
 }

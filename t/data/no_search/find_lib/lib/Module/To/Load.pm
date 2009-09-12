@@ -1,9 +1,9 @@
 package Module::To::Load;
 
-use FindLib ();
+use lib::find ();
 
-FindLib::find_lib();
+lib::find::find_lib();
 
-our $lib_dir = $FindLib::Lib{+__PACKAGE__};
+our $lib_dir = $lib::find::Lib{+__PACKAGE__};
 
 1;

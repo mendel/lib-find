@@ -1,6 +1,6 @@
 package Module::To::Find;
 
-our $magic = "FindLib";
+our $magic = "lib::find";
 
 our @seenINC = @INC;
 

@@ -1,9 +1,9 @@
 use inc::Module::Install 0.91;
 
-name     'FindLib';
-all_from 'lib/FindLib.pm';
-readme_from 'lib/FindLib.pm' => 'clean';
-resources 'repository'  => 'http://github.com/mendel/FindLib/tree';
+name     'lib-find';
+all_from 'lib/lib/find.pm';
+readme_from 'lib/lib/find.pm' => 'clean';
+resources 'repository'  => 'http://github.com/mendel/lib-find/tree';
 
 requires 'FindBin' => '1.49';
 requires 'File::Spec' => '3.3';

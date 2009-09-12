@@ -7,7 +7,7 @@ use FindBin;
 
 use Test::Most;
 
-use FindLib ();
+use lib::find ();
 
 {
   my $base_dir = "$FindBin::Bin/data/no_search/find_lib";
@@ -25,22 +25,22 @@ use FindLib ();
 
     lives_ok {
       eval "use Module::To::Load"; die if $@ ne "";
-    } "\"use FindLib (); FindLib::find_lib();\" does not die";
+    } "\"use lib::find (); lib::find::find_lib();\" does not die";
 
     @newINC = @INC;
     %newINC = %INC;
 
     is(
-      $FindLib::Lib{'Module::To::Load'},
+      $lib::find::Lib{'Module::To::Load'},
       "$base_dir/lib",
-      "\"use FindLib (); FindLib::find_lib();\" sets up the \%FindLib::Lib slot with the " .
+      "\"use lib::find (); lib::find::find_lib();\" sets up the \%lib::find::Lib slot with the " .
       "right path"
     );
 
     is(
       $Module::To::Load::lib_dir,
       "$base_dir/lib",
-      "\"use FindLib (); FindLib::find_lib();\" sets up the \%FindLib::Lib slot to the " .
+      "\"use lib::find (); lib::find::find_lib();\" sets up the \%lib::find::Lib slot to the " .
       "right path during the require"
     );
   }
@@ -48,7 +48,7 @@ use FindLib ();
   cmp_deeply(
     \@newINC,
     \@INC,
-    "\"use FindLib (); FindLib::find_lib();\" does not touch \@INC"
+    "\"use lib::find (); lib::find::find_lib();\" does not touch \@INC"
   );
 }
 
@@ -68,21 +68,21 @@ use FindLib ();
 
     lives_ok {
       eval "use Module::To::Load"; die if $@ ne "";
-    } "\"use FindLib;\" does not die";
+    } "\"use lib::find;\" does not die";
 
     @newINC = @INC;
     %newINC = %INC;
 
     is(
-      $FindLib::Lib{'Module::To::Load'},
+      $lib::find::Lib{'Module::To::Load'},
       "$base_dir/lib",
-      "\"use FindLib;\" sets up the \%FindLib::Lib slot with the right path"
+      "\"use lib::find;\" sets up the \%lib::find::Lib slot with the right path"
     );
 
     is(
       $Module::To::Load::lib_dir,
       "$base_dir/lib",
-      "\"use FindLib;\" sets up the \%FindLib::Lib slot to the right path " .
+      "\"use lib::find;\" sets up the \%lib::find::Lib slot to the right path " .
       "during the require"
     );
   }
@@ -90,7 +90,7 @@ use FindLib ();
   cmp_deeply(
     \@newINC,
     \@INC,
-    "\"use FindLib;\" does not touch \@INC"
+    "\"use lib::find;\" does not touch \@INC"
   );
 }
 

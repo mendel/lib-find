@@ -1,5 +1,5 @@
 package Module::To::Find;
 
-our $magic = "FindLib - lib";
+our $magic = "lib::find - lib";
 
 1;

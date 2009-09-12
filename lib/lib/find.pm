@@ -1,6 +1,7 @@
-package FindLib;
+package lib::find;
 
-#TODO convert %FindLib::Lib into a tied hash (so the libdir of any module can be queried, not only those that are found by FindLib) ?
+#TODO rename %lib::find::Lib and $lib::find::libdir to %lib::find::libdir and $lib::find::libdir
+#TODO convert %lib::find::Lib into a tied hash (so the libdir of any module can be queried, not only those that are found by lib::find) ?
 #TODO rewrite SYNOPSIS and DESCRIPTION a bit: the module has two separate uses: 1. find the libdir of any or the current module, 2. scan dirs upwards to find a module and unshift its libdir to @INC
 
 use warnings;
@@ -14,11 +15,11 @@ use Cwd;
 use Carp;
 use Data::Thunk;
 
-use FindLib::Lib;
+use lib::find::Lib;
 
 =head1 NAME
 
-FindLib - Finds a module scanning upwards from $FindBin::RealBin, adds its dir to @INC
+lib::find - Finds a module scanning upwards from $FindBin::RealBin, adds its dir to @INC
 
 =head1 VERSION
 
@@ -53,12 +54,12 @@ into C<@INC>.
     #
 
     # in bin/cron/foo.pl
-    use FindLib 'MyApp::Common'; # finds the dir upwards that contains
+    use lib::find 'MyApp::Common'; # finds the dir upwards that contains
                                  # MyApp/Common.pm and prepends it to @INC
     use MySchema;                # now found
 
     # in script/myapp_server.pl
-    use FindLib 'MyApp::Common'; # finds the dir upwards that contains
+    use lib::find 'MyApp::Common'; # finds the dir upwards that contains
                                  # MyApp/Common.pm and prepends it to @INC
     use MyApp;                   # now found
 
@@ -83,11 +84,11 @@ But there's more, you can tweak C<@INC> from the module being searched for:
     #
 
     # in MyApp/Common.pm
-    use FindLib;
-    use lib "$FindLib::Lib/../stuff/lib";
+    use lib::find;
+    use lib "$lib::find::Lib/../stuff/lib";
 
     # in bin/cron/foo.pl
-    use FindLib 'MyApp::Common'; # finds the dir upwards that contains
+    use lib::find 'MyApp::Common'; # finds the dir upwards that contains
                                  # My/App.pm and prepends it to @INC
     use MyApp::Schema;           # now found
     use Thingy;                  # also found b/c we added stuff/lib
@@ -128,7 +129,7 @@ scripts like that:
 
 Now you can write this instead:
 
-    use FindLib 'MyApp::Common';
+    use lib::find 'MyApp::Common';
 
     use MyApp::Common;
     use MyApp::Schema;
@@ -144,7 +145,7 @@ No exports.
 
 =cut
 
-=head2 $FindLib::max_scan_iterations
+=head2 $lib::find::max_scan_iterations
 
 The scanning of parent directories stops after going this many levels upwards
 (to avoid infinite loops).
@@ -155,7 +156,7 @@ The default value is 100.
 
 our $max_scan_iterations = 100;
 
-=head2 @FindLib::Libdir_names
+=head2 @lib::find::Libdir_names
 
 The relative directory names to look for as libdirs.
 
@@ -165,16 +166,16 @@ The default is ('blib', 'lib').
 
 our @libdir_names = qw(blib lib);
 
-=head2 %FindLib::Lib
+=head2 %lib::find::Lib
 
-Contains the module name - libdir pairs for all the modules that L<FindLib> was
+Contains the module name - libdir pairs for all the modules that L<lib::find> was
 used to find.
 
-    use FindLib 'MyApp::Common';
+    use lib::find 'MyApp::Common';
 
     # set $app_root to the absolute path of the 'myapp' dir (see the example in
     # the L</SYNOPSIS>)
-    my $app_root = "$FindLib::Lib{'MyApp::Common'}/..";
+    my $app_root = "$lib::find::Lib{'MyApp::Common'}/..";
 
 It is already set when the module searched for is being compiled (ie. you can
 use C<< $FindBin::lib{+__PACKAGE__} >> there). (To be perfectly honest, it is
@@ -183,9 +184,9 @@ the time it does not matter for you.)
 
 So you can use libdirs relative to the libdir of the current module:
 
-    use FindLib;
+    use lib::find;
 
-    use lib "$FindLib::Lib{+__PACKAGE__}/../stuff/lib";
+    use lib "$lib::find::Lib{+__PACKAGE__}/../stuff/lib";
 
 See also L<$FindBin::Lib>.
 
@@ -193,23 +194,23 @@ See also L<$FindBin::Lib>.
 
 our %Lib;
 
-=head2 $FindLib::Lib
+=head2 $lib::find::Lib
 
 A tied scalar variable that returns the value of L<%FindBin::Lib> hash slot that
 corresponds to the current module (ie. where this variable evaluated from).
 
-Everything described at L<%FindLib::Lib> applies to this variable, too.
+Everything described at L<%lib::find::Lib> applies to this variable, too.
 
 This variable is especially convenient when you want to use libdirs relative to
 the libdir of the current module:
 
-    use FindLib;
+    use lib::find;
 
-    use lib "$FindLib::Lib/../stuff/lib";
+    use lib "$lib::find::Lib/../stuff/lib";
 
 =cut
 
-tie our $Lib, 'FindLib::Lib';
+tie our $Lib, 'lib::find::Lib';
 
 =head1 FUNCTIONS
 
@@ -284,11 +285,11 @@ success.
 If C<$module_name> is omitted, it defaults to the current package
 (C<__PACKAGE__>). This does not make much sense when considered as searching
 for the libdir of the module (it's already known), but as a side-effect it sets
-C<< $FindLib::Lib{+__PACKAGE__} >> (also available as C<$FindLib::Lib>).
+C<< $lib::find::Lib{+__PACKAGE__} >> (also available as C<$lib::find::Lib>).
 
-C<< use FindLib 'MyApp::Common' >> is equivalent to C<<
-FindLib::find_lib('MyApp::Common') >> (and C<< use FindLib; >> is equivalent to
-C<< FindLib::find_lib() >>).
+C<< use lib::find 'MyApp::Common' >> is equivalent to C<<
+lib::find::find_lib('MyApp::Common') >> (and C<< use lib::find; >> is equivalent to
+C<< lib::find::find_lib() >>).
 
 =cut
 
@@ -347,7 +348,7 @@ sub find_lib
 =item *
 
 option to specify alternatives to ['blib', 'lib'] (besides setting
-C<$FindLib::Libdir_names>)
+C<$lib::find::Libdir_names>)
 
 =item *
 
@@ -397,17 +398,18 @@ Norbert Buchmüller, C<< <norbi at nix.hu> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-findlib at rt.cpan.org>, or
-through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=FindLib>. I will be notified,
-and then you'll automatically be notified of progress on your bug as I make
-changes.
+Please report any bugs or feature requests to C<bug-lib-find at rt.cpan.org>, or through
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=lib-find>.  I will be notified, and then you'll
+automatically be notified of progress on your bug as I make changes.
+
+
+
 
 =head1 SUPPORT
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc FindLib
+    perldoc lib::find
 
 You can also look for information at:
 
@@ -415,19 +417,19 @@ You can also look for information at:
 
 =item * RT: CPAN's request tracker
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=FindLib>
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=lib-find>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
-L<http://annocpan.org/dist/FindLib>
+L<http://annocpan.org/dist/lib-find>
 
 =item * CPAN Ratings
 
-L<http://cpanratings.perl.org/d/FindLib>
+L<http://cpanratings.perl.org/d/lib-find>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/FindLib/>
+L<http://search.cpan.org/dist/lib-find/>
 
 =back
 
@@ -440,4 +442,4 @@ under the same terms as Perl itself.
 
 =cut
 
-1; # End of FindLib
+1; # End of lib::find

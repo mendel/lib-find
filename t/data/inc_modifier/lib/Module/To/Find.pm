@@ -1,7 +1,7 @@
 package Module::To::Find;
 
-our $magic = "FindLib";
+our $magic = "lib::find";
 
-@INC = ("FindLibPre", @INC, "FindLibPost");
+@INC = ("lib::find-pre", @INC, "lib::find-post");
 
 1;

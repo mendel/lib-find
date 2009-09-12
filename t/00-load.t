@@ -6,7 +6,7 @@ use warnings;
 use Test::Most tests => 1;
 
 BEGIN {
-	require_ok( 'FindLib' );
+	require_ok( 'lib::find' );
 }
 
-diag( "Testing FindLib $FindLib::VERSION, Perl $], $^X" );
+diag( "Testing lib::find $lib::find::VERSION, Perl $], $^X" );

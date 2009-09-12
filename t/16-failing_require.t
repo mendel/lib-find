@@ -7,12 +7,12 @@ use FindBin;
 
 use Test::Most;
 
-use FindLib ();
+use lib::find ();
 
 {
   my $base_dir = "$FindBin::Bin/data/failing_require/a";
 
-  local $FindLib::max_scan_iterations = 1;
+  local $lib::find::max_scan_iterations = 1;
 
   my @newINC;
   my %newINC;
@@ -23,7 +23,7 @@ use FindLib ();
     local $FindBin::RealBin = "$base_dir/bin";
 
     lives_ok {
-      FindLib::find_lib('Module::With::No::Content');
+      lib::find::find_lib('Module::With::No::Content');
     } "find_lib() does not die even if the module does not declare the package";
 
     @newINC = @INC;
@@ -48,7 +48,7 @@ use FindLib ();
 {
   my $base_dir = "$FindBin::Bin/data/failing_require/a";
 
-  local $FindLib::max_scan_iterations = 1;
+  local $lib::find::max_scan_iterations = 1;
 
   my @newINC;
   my %newINC;
@@ -60,7 +60,7 @@ use FindLib ();
 
     throws_ok {
       local $SIG{__WARN__} = sub { };
-      FindLib::find_lib('Module::With::Syntax::Error');
+      lib::find::find_lib('Module::With::Syntax::Error');
     } qr/^Module 'Module::With::Syntax::Error' not found when scanning upwards from '\Q$FindBin::RealBin\E'/,
       "find_lib() dies with the proper error message if the module cannot be " .
       "required b/c of a syntax error";
@@ -93,7 +93,7 @@ use FindLib ();
 {
   my $base_dir = "$FindBin::Bin/data/failing_require/a";
 
-  local $FindLib::max_scan_iterations = 1;
+  local $lib::find::max_scan_iterations = 1;
 
   my @newINC;
   my %newINC;
@@ -104,7 +104,7 @@ use FindLib ();
     local $FindBin::RealBin = "$base_dir/bin";
 
     throws_ok {
-      FindLib::find_lib('Module::That::Returns::False');
+      lib::find::find_lib('Module::That::Returns::False');
     } qr/^Module 'Module::That::Returns::False' not found when scanning upwards from '\Q$FindBin::RealBin\E'/,
       "find_lib() dies with the proper error message if the module cannot be " .
       "required b/c it returns false";
@@ -139,7 +139,7 @@ use FindLib ();
   my $base_dir = "$FindBin::Bin/data/failing_require";
 
   local @INC = ("$base_dir/a/lib", @INC);
-  local $FindLib::max_scan_iterations = 1;
+  local $lib::find::max_scan_iterations = 1;
 
   my @newINC;
   my %newINC;
@@ -150,7 +150,7 @@ use FindLib ();
     local $FindBin::RealBin = "$base_dir/b/bin";
 
     lives_ok {
-      FindLib::find_lib('Module::With::No::Content');
+      lib::find::find_lib('Module::With::No::Content');
     } "find_lib() does not die even if the module does not declare the package " .
       "(libdir already in \@INC)";
 
@@ -177,7 +177,7 @@ use FindLib ();
   my $base_dir = "$FindBin::Bin/data/failing_require";
 
   local @INC = ("$base_dir/a/lib", @INC);
-  local $FindLib::max_scan_iterations = 1;
+  local $lib::find::max_scan_iterations = 1;
 
   my @newINC;
   my %newINC;
@@ -189,7 +189,7 @@ use FindLib ();
 
     throws_ok {
       local $SIG{__WARN__} = sub { };
-      FindLib::find_lib('Module::With::Syntax::Error');
+      lib::find::find_lib('Module::With::Syntax::Error');
     } qr/^Module 'Module::With::Syntax::Error' not found when scanning upwards from '\Q$FindBin::RealBin\E'/,
       "find_lib() dies with the proper error message if the module cannot be " .
       "required b/c of a syntax error (libdir already in \@INC)";
@@ -224,7 +224,7 @@ use FindLib ();
   my $base_dir = "$FindBin::Bin/data/failing_require";
 
   local @INC = ("$base_dir/a/lib", @INC);
-  local $FindLib::max_scan_iterations = 1;
+  local $lib::find::max_scan_iterations = 1;
 
   my @newINC;
   my %newINC;
@@ -235,7 +235,7 @@ use FindLib ();
     local $FindBin::RealBin = "$base_dir/b/bin";
 
     throws_ok {
-      FindLib::find_lib('Module::That::Returns::False');
+      lib::find::find_lib('Module::That::Returns::False');
     } qr/^Module 'Module::That::Returns::False' not found when scanning upwards from '\Q$FindBin::RealBin\E'/,
       "find_lib() dies with the proper error message if the module cannot be " .
       "required b/c it returns false (libdir already in \@INC)";
