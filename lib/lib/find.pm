@@ -1,6 +1,6 @@
 package lib::find;
 
-#TODO inline the $dir and %dir tie modules
+#FIXME make $dir and %dir return absolute paths and document it
 #TODO create TODO tests (and add TODO doc) for inlined module case (ie. when in one file there are some auxiliary modules and the user asks for any of them)
 #TODO rewrite SYNOPSIS and DESCRIPTION a bit: the module has two separate uses: 1. find the libdir of any or the current module, 2. scan dirs upwards to find a module and unshift its libdir to @INC
 
@@ -168,8 +168,8 @@ our @libdir_names = qw(blib lib);
 
 =head2 %lib::find::dir
 
-A tied hash variable that returns the libdir value for the given module name
-(if it's already loaded - it uses L<perlvar/%INC>).
+A tied hash variable that returns the libdir value (the return value of
+L<libdir_path>) for the given module name (used as the key).
 
     use lib::find 'MyApp::Common';
 
@@ -240,13 +240,14 @@ sub _append_dir_to_path($$)
 }
 
 
-#
-# my $module_inc_key = _module_inc_key($module_name);
-#
-# Returns the key for the L<perlvar/%INC> hash that corresponds to
-# C<$module_name>. Returns C<undef> if C<$module_name> is not defined.
-#
-sub _module_inc_key($)
+=head2 module_inc_key($module_name)
+
+Returns the key for the L<perlvar/%INC> hash that corresponds to
+C<$module_name>. Returns C<undef> if C<$module_name> is not defined.
+
+=cut
+
+sub module_inc_key($)
 {
   my ($module_name) = @_;
 
@@ -257,20 +258,25 @@ sub _module_inc_key($)
   return $module_inc_key;
 }
 
-#
-# my $libdir_path = _libdir_path($module_name);
-#
-# Strips off the module name parts from the the module file of C<$module_name>
-# found in L<perlvar/%INC> and returns the path of the libdir. Returns
-# C<undef> if C<$module_name> is not defined or if that module is not loaded.
-#
-sub _libdir_path($)
+
+=head2 libdir_path($module_name)
+
+Returns the libdir value for the given module name (if it's already loaded - it
+uses L<perlvar/%INC>).
+
+Strips off the module name parts from the the module file of C<$module_name>
+found in L<perlvar/%INC> and returns the path of the libdir. Returns C<undef>
+if C<$module_name> is not defined or if that module is not loaded.
+
+=cut
+
+sub libdir_path($)
 {
   my ($module_name) = @_;
 
   return undef unless defined $module_name;
 
-  my $module_file = $INC{_module_inc_key($module_name)};
+  my $module_file = $INC{module_inc_key($module_name)};
 
   return undef unless defined $module_file;
 
@@ -316,7 +322,7 @@ sub find_lib
 
   return unless defined $module_name;
 
-  my $module_inc_key = _module_inc_key($module_name);
+  my $module_inc_key = module_inc_key($module_name);
 
   # try if it's already in @INC
   eval "require $module_name";

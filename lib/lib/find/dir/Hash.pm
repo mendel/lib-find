@@ -49,7 +49,7 @@ sub FETCH
 {
   my ($self, $module_name) = (shift, @_);
 
-  return lib::find::_libdir_path($module_name);
+  return lib::find::libdir_path($module_name);
 }
 
 =head2 EXISTS
@@ -62,7 +62,7 @@ sub EXISTS
 {
   my ($self, $module_name) = (shift, @_);
 
-  my $module_inc_key = lib::find::_module_inc_key($module_name);
+  my $module_inc_key = lib::find::module_inc_key($module_name);
 
   return
     defined $module_inc_key
