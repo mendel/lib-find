@@ -11,6 +11,7 @@ requires 'Cwd' => '3.3';
 requires 'Carp' => '1.08';
 
 test_requires 'Test::Most' => '0.21';
+test_requires 'List::MoreUtils' => '0.22';
 if ($Module::Install::AUTHOR) {
   test_requires 'Test::Pod' => '1.22';
   test_requires 'Test::Pod::Coverage' => '1.08';

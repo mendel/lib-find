@@ -5,10 +5,92 @@ use warnings;
 
 use FindBin;
 use File::Spec;
+use List::MoreUtils qw(zip);
 
 use Test::Most;
 
 use lib::find ();
+
+{
+  lives_and {
+    ok(exists $lib::find::dir{'Test::Most'});
+  } "exists \$lib::find::dir{'Test::Most'} is true";
+
+  lives_and {
+    is($lib::find::dir{'Test::Most'}, lib::find::_libdir_path('Test::Most'));
+  } "reading \$lib::find::dir{'Test::Most'} returns the right value";
+
+  {
+    my @keys;
+    lives_ok {
+      @keys = keys %lib::find::dir;
+    } "keys \%lib::find::dir does not die";
+
+    my @values;
+    lives_ok {
+      @values = values %lib::find::dir;
+    } "values \%lib::find::dir does not die";
+
+    is(
+      scalar @keys,
+      scalar keys %INC,
+      "\%lib::find::dir has the same number of keys as \%INC"
+    );
+
+    eq_or_diff(
+      [
+        zip @keys, @values
+      ],
+      [
+        map {
+          $_ => $lib::find::dir{$_}
+        } @keys
+      ],
+      "keys \%lib::find::dir and values \%lib::find::dir return the elements in " .
+      "the same order"
+    );
+  }
+
+  lives_and {
+    is(scalar %lib::find::dir, scalar %INC);
+  } "scalar \%lib::find::dir is the same as scalar \%INC";
+
+  throws_ok {
+    $lib::find::dir{'Test::Most'} = 'anything';
+  } qr/^You cannot modify the \%lib::find::dir variable/,
+  "attempt to assign to \$lib::find::dir{'Test::Most'} throws the proper exception";
+
+  throws_ok {
+    delete $lib::find::dir{'Test::Most'};
+  } qr/^You cannot modify the \%lib::find::dir variable/,
+  "attempt to delete \$lib::find::dir{'Test::Most'} throws the proper exception";
+
+  throws_ok {
+    %lib::find::dir = ();
+  } qr/^You cannot modify the \%lib::find::dir variable/,
+  "attempt to clear \%lib::find::dir throws the proper exception";
+
+  throws_ok {
+    untie %lib::find::dir;
+  } qr/^You cannot modify the \%lib::find::dir variable/,
+  "attempt to untie \%lib::find::dir throws the proper exception";
+}
+
+{
+  lives_and {
+    is($lib::find::dir, lib::find::_libdir_path('Test::Most'));
+  } "reading \$lib::find::dir returns the right value";
+
+  throws_ok {
+    $lib::find::dir = 'anything';
+  } qr/^You cannot modify the \$lib::find::dir variable/,
+  "attempt to assign to \$lib::find::dir throws the proper exception";
+
+  throws_ok {
+    untie $lib::find::dir;
+  } qr/^You cannot modify the \$lib::find::dir variable/,
+  "attempt to untie \$lib::find::dir throws the proper exception";
+}
 
 {
   my @tests = (
