@@ -24,7 +24,7 @@ sub _modify_hash
 
 =head2 TIEHASH
 
-See L<perltie/TIEHASH>.
+See L<perltie/"Tying Hashes">.
 
 =cut
 
@@ -41,7 +41,7 @@ sub TIEHASH
 
 =head2 FETCH
 
-See L<perltie/FETCH>.
+See L<perltie/"Tying Hashes">.
 
 =cut
 
@@ -54,7 +54,7 @@ sub FETCH
 
 =head2 EXISTS
 
-See L<perltie/EXISTS>.
+See L<perltie/"Tying Hashes">.
 
 =cut
 
@@ -72,7 +72,7 @@ sub EXISTS
 
 =head2 FIRSTKEY
 
-See L<perltie/FIRSTKEY>.
+See L<perltie/"Tying Hashes">.
 
 =cut
 
@@ -87,7 +87,7 @@ sub FIRSTKEY
 
 =head2 NEXTKEY
 
-See L<perltie/NEXTKEY>.
+See L<perltie/"Tying Hashes">.
 
 =cut
 
@@ -108,7 +108,7 @@ sub NEXTKEY
 
 =head2 SCALAR
 
-See L<perltie/SCALAR>.
+See L<perltie/"Tying Hashes">.
 
 =cut
 

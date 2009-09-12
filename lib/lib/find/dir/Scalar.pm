@@ -24,7 +24,7 @@ sub _modify_scalar
 
 =head2 TIESCALAR
 
-See L<perltie/TIESCALAR>.
+See L<perltie/"Tying Scalars">.
 
 =cut
 
@@ -41,7 +41,7 @@ sub TIESCALAR
 
 =head2 FETCH
 
-See L<perltie/FETCH>.
+See L<perltie/"Tying Scalars">.
 
 =cut
 
