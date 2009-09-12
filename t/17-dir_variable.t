@@ -110,7 +110,7 @@ use lib::find ();
 }
 
 {
-  my $base_dir = "$FindBin::Bin/data/lib_variable/hash";
+  my $base_dir = "$FindBin::Bin/data/dir_variable/hash";
 
   {
     local @INC = @INC;
@@ -137,7 +137,7 @@ use lib::find ();
 }
 
 {
-  my $base_dir = "$FindBin::Bin/data/lib_variable/scalar";
+  my $base_dir = "$FindBin::Bin/data/dir_variable/scalar";
 
   {
     local @INC = @INC;
