@@ -25,7 +25,7 @@ use lib::find ();
 
     lives_ok {
       eval "use Module::To::Load"; die if $@ ne "";
-    } "\"use lib::find (); lib::find::find_lib();\" does not die";
+    } "\"use lib::find (); lib::find::find_lib(undef);\" does not die";
 
     @newINC = @INC;
     %newINC = %INC;
@@ -33,14 +33,14 @@ use lib::find ();
     is(
       $lib::find::dir{'Module::To::Load'},
       "$base_dir/lib",
-      "\"use lib::find (); lib::find::find_lib();\" sets up the \%lib::find::dir slot with the " .
+      "\"use lib::find (); lib::find::find_lib(undef);\" sets up the \%lib::find::dir slot with the " .
       "right path"
     );
 
     is(
       $Module::To::Load::lib_dir,
       "$base_dir/lib",
-      "\"use lib::find (); lib::find::find_lib();\" sets up the \%lib::find::dir slot to the " .
+      "\"use lib::find (); lib::find::find_lib(undef);\" sets up the \%lib::find::dir slot to the " .
       "right path during the require"
     );
   }
@@ -48,7 +48,7 @@ use lib::find ();
   cmp_deeply(
     \@newINC,
     \@INC,
-    "\"use lib::find (); lib::find::find_lib();\" does not touch \@INC"
+    "\"use lib::find (); lib::find::find_lib(undef);\" does not touch \@INC"
   );
 }
 

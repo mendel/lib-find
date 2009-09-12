@@ -141,6 +141,10 @@ resides.
 
 No exports.
 
+C<< use lib::find 'MyApp::Common' >> is equivalent to C<<
+lib::find::find_lib('MyApp::Common') >> and C<< use lib::find; >> does not call
+L<find_lib>.
+
 =head1 VARIABLES
 
 =cut
@@ -217,6 +221,8 @@ tie our $dir, 'lib::find::dir::Scalar', '$' . __PACKAGE__ . '::dir';
 sub import
 {
   my ($caller, $module_name) = (shift, @_);
+
+  return unless @_;
 
   goto \&find_lib;
 }
@@ -304,16 +310,12 @@ sub libdir_path($)
   );
 }
 
-=head2 find_lib([$module_name])
+=head2 find_lib($module_name)
 
 Performs the scanning of parent dirs and prepending the libdir to C<@INC> on
 success.
 
-No-op if C<$module_name> is omitted or not defined.
-
-C<< use lib::find 'MyApp::Common' >> is equivalent to C<<
-lib::find::find_lib('MyApp::Common') >> (and C<< use lib::find; >> is equivalent to
-C<< lib::find::find_lib() >>).
+No-op if C<$module_name> is not defined.
 
 =cut
 
