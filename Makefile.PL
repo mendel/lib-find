@@ -11,6 +11,7 @@ requires 'Cwd' => '3.3';
 requires 'Carp' => '1.08';
 
 test_requires 'Test::Most' => '0.21';
+test_requires 'Test::More' => '0.92';
 test_requires 'List::MoreUtils' => '0.22';
 
 author_requires 'Test::Pod' => '1.22';
