@@ -6,6 +6,7 @@ package lib::find;
 #  * we can use $FindBin::Bin instead of ::RealBin
 #  * see FindBin::libs code (ie. it calls realpath() on the result of the concatenation of the dir parts and use that)
 #TODO use Path::Class instead for the path mangling - it will Do The Right Thing when we want to have the parent dir
+#TODO a nice goodie: consider all paths in $lib::find::libdir_names as UNIX paths (ie. do foreign_dir('Unix', $libdir_name)->as_native on them before using them)
 #TODO add logging and an envvar to turn it on/off
 #TODO in doc compare to Find::Lib and FindBin::libs, add them to SEE ALSO
 #TODO create TODO tests (and add TODO doc) for inlined module case (ie. when in one file there are some auxiliary modules and the user asks for any of them)
