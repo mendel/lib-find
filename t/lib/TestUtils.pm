@@ -51,8 +51,12 @@ sub data_dir
 
   my $test_name = _test_name();
 
-  return dir($FindBin::Bin)->as_foreign('Unix')
-    ->subdir("data/$test_name/$subdir")->as_native->stringify;
+  my $bin_dir = dir($FindBin::Bin);
+
+  return dir($bin_dir->volume,
+    $bin_dir->as_foreign('Unix')
+      ->subdir("data/$test_name/$subdir")->as_native
+  )->stringify;
 }
 
 sub data_file
@@ -63,8 +67,12 @@ sub data_file
 
   my $test_name = _test_name();
 
-  return dir($FindBin::Bin)->as_foreign('Unix')
-    ->file("data/$test_name/$subdirs_and_filename")->as_native->stringify;
+  my $bin_dir = dir($FindBin::Bin);
+
+  return dir($bin_dir->volume,
+    $bin_dir->as_foreign('Unix')
+      ->file("data/$test_name/$subdirs_and_filename")->as_native
+  )->stringify;
 }
 
 1;
