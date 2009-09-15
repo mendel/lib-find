@@ -12,14 +12,14 @@ requires 'Carp' => '1.08';
 
 test_requires 'Test::Most' => '0.21';
 test_requires 'List::MoreUtils' => '0.22';
-if ($Module::Install::AUTHOR) {
-  test_requires 'Test::Pod' => '1.22';
-  test_requires 'Test::Pod::Coverage' => '1.08';
-  test_requires 'Pod::Coverage' => '0.18';
-}
 
-configure_requires 'Module::Install::ExtraTests' => 0.006;
-configure_requires 'Module::Install::ReadmeFromPod' => 0.06;
+author_requires 'Test::Pod' => '1.22';
+author_requires 'Test::Pod::Coverage' => '1.08';
+author_requires 'Pod::Coverage' => '0.18';
+
+configure_requires 'Module::Install::ExtraTests' => '0.006';
+configure_requires 'Module::Install::ReadmeFromPod' => '0.06';
+configure_requires 'Module::Install::AuthorRequires' => '0.02';
 
 extra_tests;
 
