@@ -1,6 +1,5 @@
 package lib::find;
 
-#FIXME fix paths in testcases (UNIX paths were used)
 #TODO split the dirs and reassemble them instead of using updir
 #  * so that we can handle symlinks like they should be handled (tests for symlinks, with skip on unfriendly OSes)
 #  * we can use $FindBin::Bin instead of ::RealBin

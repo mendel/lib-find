@@ -3,15 +3,17 @@
 use strict;
 use warnings;
 
-use FindBin;
-
 use Test::Most;
+
+use FindBin;
+use Path::Class;
+use lib dir($FindBin::Bin)->subdir('lib')->stringify;
+
+use TestUtils;
 
 use lib::find ();
 
 {
-  my $base_dir = "$FindBin::Bin/data/failing_require/a";
-
   local $lib::find::max_scan_iterations = 1;
 
   my @newINC;
@@ -20,7 +22,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = "$base_dir/bin";
+    local $FindBin::RealBin = data_dir("a/bin");
 
     lives_ok {
       lib::find::find_lib('Module::With::No::Content');
@@ -32,22 +34,20 @@ use lib::find ();
 
   cmp_deeply(
     \@newINC,
-    ["$base_dir/lib", @INC],
+    [data_dir("a/lib"), @INC],
     "find_lib() prepends the right libdir to \@INC even when the module does not " .
     "declare the package"
   );
 
   is(
     $newINC{'Module/With/No/Content.pm'},
-    "$base_dir/lib/Module/With/No/Content.pm",
+    data_file("a/lib/Module/With/No/Content.pm"),
     "find_lib() sets the \%INC slot to the right path even when the module does " .
     "not declare the package"
   );
 }
 
 {
-  my $base_dir = "$FindBin::Bin/data/failing_require/a";
-
   local $lib::find::max_scan_iterations = 1;
 
   my @newINC;
@@ -56,7 +56,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = "$base_dir/bin";
+    local $FindBin::RealBin = data_dir("a/bin");
 
     throws_ok {
       local $SIG{__WARN__} = sub { };
@@ -71,7 +71,7 @@ use lib::find ();
 
   cmp_deeply(
     \@newINC,
-    ["$base_dir/lib", @INC],
+    [data_dir("a/lib"), @INC],
     "find_lib() prepends the right libdir to \@INC even when the module cannot " .
     "be required b/c of a syntax error"
   );
@@ -91,8 +91,6 @@ use lib::find ();
 }
 
 {
-  my $base_dir = "$FindBin::Bin/data/failing_require/a";
-
   local $lib::find::max_scan_iterations = 1;
 
   my @newINC;
@@ -101,7 +99,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = "$base_dir/bin";
+    local $FindBin::RealBin = data_dir("a/bin");
 
     throws_ok {
       lib::find::find_lib('Module::That::Returns::False');
@@ -115,7 +113,7 @@ use lib::find ();
 
   cmp_deeply(
     \@newINC,
-    ["$base_dir/lib", @INC],
+    [data_dir("a/lib"), @INC],
     "find_lib() prepends the right libdir to \@INC even when the module cannot " .
     "be required b/c it returns false"
   );
@@ -136,9 +134,7 @@ use lib::find ();
 
 
 {
-  my $base_dir = "$FindBin::Bin/data/failing_require";
-
-  local @INC = ("$base_dir/a/lib", @INC);
+  local @INC = (data_dir("a/lib"), @INC);
   local $lib::find::max_scan_iterations = 1;
 
   my @newINC;
@@ -147,7 +143,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = "$base_dir/b/bin";
+    local $FindBin::RealBin = data_dir("b/bin");
 
     lives_ok {
       lib::find::find_lib('Module::With::No::Content');
@@ -167,16 +163,14 @@ use lib::find ();
 
   is(
     $newINC{'Module/With/No/Content.pm'},
-    "$base_dir/a/lib/Module/With/No/Content.pm",
+    data_file("a/lib/Module/With/No/Content.pm"),
     "find_lib() sets the \%INC slot to the right path even when the module does " .
     "not declare the package (libdir already in \@INC)"
   );
 }
 
 {
-  my $base_dir = "$FindBin::Bin/data/failing_require";
-
-  local @INC = ("$base_dir/a/lib", @INC);
+  local @INC = (data_dir("a/lib"), @INC);
   local $lib::find::max_scan_iterations = 1;
 
   my @newINC;
@@ -185,7 +179,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = "$base_dir/b/bin";
+    local $FindBin::RealBin = data_dir("b/bin");
 
     throws_ok {
       local $SIG{__WARN__} = sub { };
@@ -221,9 +215,7 @@ use lib::find ();
 }
 
 {
-  my $base_dir = "$FindBin::Bin/data/failing_require";
-
-  local @INC = ("$base_dir/a/lib", @INC);
+  local @INC = (data_dir("a/lib"), @INC);
   local $lib::find::max_scan_iterations = 1;
 
   my @newINC;
@@ -232,7 +224,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = "$base_dir/b/bin";
+    local $FindBin::RealBin = data_dir("b/bin");
 
     throws_ok {
       lib::find::find_lib('Module::That::Returns::False');

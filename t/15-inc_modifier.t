@@ -3,22 +3,24 @@
 use strict;
 use warnings;
 
-use FindBin;
-
 use Test::Most;
+
+use FindBin;
+use Path::Class;
+use lib dir($FindBin::Bin)->subdir('lib')->stringify;
+
+use TestUtils;
 
 use lib::find ();
 
 {
-  my $base_dir = "$FindBin::Bin/data/inc_modifier";
-
   my @newINC;
   my %newINC;
 
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = "$base_dir/bin";
+    local $FindBin::RealBin = data_dir("bin");
 
     lives_ok {
       lib::find::find_lib('Module::To::Find');
@@ -30,7 +32,7 @@ use lib::find ();
 
   eq_or_diff(
     \@newINC,
-    ['lib::find-pre', "$base_dir/lib", @INC, 'lib::find-post'],
+    ['lib::find-pre', data_dir("lib"), @INC, 'lib::find-post'],
     "the modifications to \@INC by the loaded module are kept"
   );
 }

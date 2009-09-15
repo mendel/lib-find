@@ -3,12 +3,16 @@
 use strict;
 use warnings;
 
-use FindBin;
-use File::Spec;
-use Cwd;
-use List::MoreUtils qw(zip);
-
 use Test::Most;
+
+use FindBin;
+use Path::Class;
+use lib dir($FindBin::Bin)->subdir('lib')->stringify;
+
+use TestUtils;
+
+use List::MoreUtils qw(zip);
+use Path::Class;
 
 use lib::find ();
 
@@ -94,76 +98,64 @@ use lib::find ();
 }
 
 {
-  my $base_dir = "$FindBin::Bin/data/dir_variable/libdir_path";
-
   my @tests = (
     {
       desc => "1-element module name, 3 dirs deep libdir",
       module => 'Foo',
-      path => [qw(some path to Foo.pm)],
-      libdir => [qw(some path to)],
+      path => "some/path/to/Foo.pm",
+      libdir => "some/path/to",
     },
     {
       desc => "1-element module name, 1 dirs deep libdir",
       module => 'Foo',
-      path => [qw(to Foo.pm)],
-      libdir => [qw(to)],
+      path => "to/Foo.pm",
+      libdir => "to",
     },
     {
       desc => "1-element module name, 0 dirs deep libdir",
       module => 'Foo',
-      path => [qw(Foo.pm)],
-      libdir => [qw()],
+      path => "Foo.pm",
+      libdir => "",
     },
     {
       desc => "2-element module name, 3 dirs deep libdir",
       module => 'Foo::Bar',
-      path => [qw(some path to Foo Bar.pm)],
-      libdir => [qw(some path to)],
+      path => "some/path/to/Foo/Bar.pm",
+      libdir => "some/path/to",
     },
     {
       desc => "2-element module name, 1 dirs deep libdir",
       module => 'Foo::Bar',
-      path => [qw(to Foo Bar.pm)],
-      libdir => [qw(to)],
+      path => "to/Foo/Bar.pm",
+      libdir => "to",
     },
     {
       desc => "2-element module name, 0 dirs deep libdir",
       module => 'Foo::Bar',
-      path => [qw(Foo Bar.pm)],
-      libdir => [qw()],
+      path => "Foo/Bar.pm",
+      libdir => "",
     },
     {
       desc => "1-element module name, inconsistent \%INC",
       module => 'Foo',
-      path => [qw(some path to Bar.pm)],
+      path => "some/path/to/Bar.pm",
       throws => q/^Inconsistent %INC: '__MODULE__' => '__PATH__'/,
     },
     {
       desc => "2-element module name, inconsistent \%INC",
       module => 'Foo::Bar',
-      path => [qw(some path to Foo Quux.pm)],
+      path => "some/path/to/Foo/Quux.pm",
       throws => q/^Inconsistent %INC: '__MODULE__' => '__PATH__'/,
     },
   );
 
   foreach my $test (@tests) {
-    my @path_dirs = @{$test->{path} || []};
-    my $path_filename = pop @path_dirs;
-    my $path = File::Spec->catpath(
-      '',
-      File::Spec->catdir($base_dir, @path_dirs),
-      $path_filename
-    );
+    my $path = data_file("libdir_path/$test->{path}");
 
     (my $inc_key = "$test->{module}.pm") =~ s{::}{/}g;
 
-    my $expected_libdir =
-        File::Spec->catpath(
-          '',
-          File::Spec->catdir($base_dir, @{$test->{libdir} || []}),
-          ''
-        );
+    $test->{libdir} ||= "";
+    my $expected_libdir = data_dir("libdir_path/$test->{libdir}");
 
     my $test_sub = sub {
       local $Test::Builder::Level = $Test::Builder::Level + 1;
@@ -195,37 +187,27 @@ use lib::find ();
 }
 
 {
-  my $base_dir = "$FindBin::Bin/data/dir_variable/libdir_path";
-  my $cwd = getcwd;
-
   my $libdir;
   {
     local $INC{'Foo/Bar.pm'} =
-      File::Spec->abs2rel(
-        File::Spec->catpath(
-          '',
-          File::Spec->catdir($base_dir, qw(some path to Foo Bar.pm)),
-          ''
-        ),
-      $cwd);
+      file(data_file("libdir_path/some/path/to/Foo/Bar.pm"))->relative
+        ->stringify;
 
     $libdir = lib::find::libdir_path('Foo::Bar');
   }
 
   is(
     $libdir,
-    Cwd::realpath($libdir),
+    dir($libdir)->absolute,
     "libdir_path() returns an absolute path"
   );
 }
 
 {
-  my $base_dir = "$FindBin::Bin/data/dir_variable/hash";
-
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = "$base_dir/bin";
+    local $FindBin::RealBin = data_dir("hash/bin");
     local $Module::To::Find::lib_dir = undef;
 
     lives_ok {
@@ -234,25 +216,23 @@ use lib::find ();
 
     is(
       $lib::find::dir{'Module::To::Find'},
-      "$base_dir/lib",
+      data_dir("hash/lib"),
       "find_lib() sets up the \%lib::find::dir slot with the right path"
     );
 
     is(
       $Module::To::Find::lib_dir,
-      "$base_dir/lib",
+      data_dir("hash/lib"),
       "the \%lib::find::dir slot is set to the right path during the require"
     );
   }
 }
 
 {
-  my $base_dir = "$FindBin::Bin/data/dir_variable/scalar";
-
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = "$base_dir/bin";
+    local $FindBin::RealBin = data_dir("scalar/bin");
     local $Module::To::Find::lib_dir = undef;
 
     lives_ok {
@@ -261,7 +241,7 @@ use lib::find ();
 
     is(
       $Module::To::Find::lib_dir,
-      "$base_dir/lib",
+      data_dir("scalar/lib"),
       "the \$lib::find::dir variable is set to the right path during the require"
     );
   }

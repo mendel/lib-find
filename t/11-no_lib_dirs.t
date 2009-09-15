@@ -3,15 +3,17 @@
 use strict;
 use warnings;
 
-use FindBin;
-
 use Test::Most;
+
+use FindBin;
+use Path::Class;
+use lib dir($FindBin::Bin)->subdir('lib')->stringify;
+
+use TestUtils;
 
 use lib::find ();
 
 {
-  my $base_dir = "$FindBin::Bin/data/no_lib_dirs";
-
   local $lib::find::max_scan_iterations = 4;
 
   my @newINC;
@@ -20,7 +22,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = "$base_dir/a/b/c/d/bin";
+    local $FindBin::RealBin = data_dir("a/b/c/d/bin");
 
     throws_ok {
       lib::find::find_lib('Module::To::Find');

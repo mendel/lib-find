@@ -3,9 +3,13 @@
 use strict;
 use warnings;
 
-use FindBin;
-
 use Test::Most;
+
+use FindBin;
+use Path::Class;
+use lib dir($FindBin::Bin)->subdir('lib')->stringify;
+
+use TestUtils;
 
 use lib::find ();
 
@@ -18,8 +22,6 @@ use lib::find ();
   );
 
   while (my ($bin_path, $expected_inc) =  each %bin_path_to_inc) {
-    my $base_dir = "$FindBin::Bin/data/simple";
-
     local $Module::To::Find::magic = undef;
     local @Module::To::Find::seenINC = ();
 
@@ -29,7 +31,7 @@ use lib::find ();
     {
       local @INC = @INC;
       local %INC = %INC;
-      local $FindBin::RealBin = "$base_dir/$bin_path";
+      local $FindBin::RealBin = data_dir($bin_path);
 
       lives_ok {
         lib::find::find_lib('Module::To::Find');
@@ -41,19 +43,19 @@ use lib::find ();
 
     is(
       $newINC{'Module/To/Find.pm'},
-      "$base_dir/$expected_inc/Module/To/Find.pm",
+      data_file("$expected_inc/Module/To/Find.pm"),
       "find_lib() finds the right dir ('$bin_path' => '$expected_inc')"
     );
 
     cmp_deeply(
       \@newINC,
-      ["$base_dir/$expected_inc", @INC],
+      [data_dir($expected_inc), @INC],
       "only the right libdir is added to the beginning of \@INC and no other changes"
     );
 
     cmp_deeply(
       \@Module::To::Find::seenINC,
-      ["$base_dir/$expected_inc", @INC],
+      [data_dir($expected_inc), @INC],
       "the module sees the original \@INC with only the right libdir prepended to it but no other changes"
     );
 
@@ -65,8 +67,6 @@ use lib::find ();
   }
 
   while (my ($bin_path, $expected_inc) =  each %bin_path_to_inc) {
-    my $base_dir = "$FindBin::Bin/data/simple";
-
     local $Module::To::Find::magic = undef;
     local @Module::To::Find::seenINC = ();
 
@@ -76,7 +76,7 @@ use lib::find ();
     {
       local @INC = @INC;
       local %INC = %INC;
-      local $FindBin::RealBin = "$base_dir/$bin_path";
+      local $FindBin::RealBin = data_dir($bin_path);
 
       lives_ok {
         eval "use lib::find 'Module::To::Find'"; die if $@ ne "";
@@ -89,19 +89,19 @@ use lib::find ();
 
     is(
       $newINC{'Module/To/Find.pm'},
-      "$base_dir/$expected_inc/Module/To/Find.pm",
+      data_file("$expected_inc/Module/To/Find.pm"),
       "\"use lib::find 'Module::To::Find'\" finds the right dir ('$bin_path' => '$expected_inc')"
     );
 
     cmp_deeply(
       \@newINC,
-      ["$base_dir/$expected_inc", @INC],
+      [data_dir($expected_inc), @INC],
       "only the right libdir is added to the beginning of \@INC and no other changes"
     );
 
     cmp_deeply(
       \@Module::To::Find::seenINC,
-      ["$base_dir/$expected_inc", @INC],
+      [data_dir($expected_inc), @INC],
       "the module sees the original \@INC with only the right libdir prepended to it but no other changes"
     );
 

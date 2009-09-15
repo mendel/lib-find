@@ -3,16 +3,18 @@
 use strict;
 use warnings;
 
-use FindBin;
-
 use Test::Most;
+
+use FindBin;
+use Path::Class;
+use lib dir($FindBin::Bin)->subdir('lib')->stringify;
+
+use TestUtils;
 
 use lib::find ();
 
 {
-  my $base_dir = "$FindBin::Bin/data/shadowed";
-
-  local @INC = ("$base_dir/b/lib", @INC);
+  local @INC = (data_dir("b/lib"), @INC);
   local $Module::To::Find::magic = undef;
   local $lib::find::max_scan_iterations = 1;
 
@@ -22,7 +24,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = "$base_dir/a/bin";
+    local $FindBin::RealBin = data_dir("a/bin");
 
     lives_ok {
       lib::find::find_lib('Module::To::Find');
@@ -34,7 +36,7 @@ use lib::find ();
 
   is(
     $newINC{'Module/To/Find.pm'},
-    "$base_dir/b/lib/Module/To/Find.pm",
+    data_file("b/lib/Module/To/Find.pm"),
     "find_lib() finds the module in dir in the original \@INC (and does not seek " .
     "upwards)"
   );

@@ -3,16 +3,18 @@
 use strict;
 use warnings;
 
-use FindBin;
-
 use Test::Most;
+
+use FindBin;
+use Path::Class;
+use lib dir($FindBin::Bin)->subdir('lib')->stringify;
+
+use TestUtils;
 
 use lib::find ();
 
 {
-  my $base_dir = "$FindBin::Bin/data/no_search/find_lib";
-
-  local @INC = ("$base_dir/lib", @INC);
+  local @INC = (data_dir("find_lib/lib"), @INC);
   local $Module::To::Load::lib_dir = undef;
 
   my @newINC;
@@ -21,7 +23,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = "$base_dir/bin";
+    local $FindBin::RealBin = data_dir("find_lib/bin");
 
     lives_ok {
       eval "use Module::To::Load"; die if $@ ne "";
@@ -32,14 +34,14 @@ use lib::find ();
 
     is(
       $lib::find::dir{'Module::To::Load'},
-      "$base_dir/lib",
+      data_dir("find_lib/lib"),
       "\"use lib::find (); lib::find::find_lib(undef);\" sets up the \%lib::find::dir slot with the " .
       "right path"
     );
 
     is(
       $Module::To::Load::lib_dir,
-      "$base_dir/lib",
+      data_dir("find_lib/lib"),
       "\"use lib::find (); lib::find::find_lib(undef);\" sets up the \%lib::find::dir slot to the " .
       "right path during the require"
     );
@@ -53,9 +55,7 @@ use lib::find ();
 }
 
 {
-  my $base_dir = "$FindBin::Bin/data/no_search/use";
-
-  local @INC = ("$base_dir/lib", @INC);
+  local @INC = (data_dir("use/lib"), @INC);
   local $Module::To::Load::lib_dir = undef;
 
   my @newINC;
@@ -64,7 +64,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = "$base_dir/bin";
+    local $FindBin::RealBin = data_dir("use/bin");
 
     lives_ok {
       eval "use Module::To::Load"; die if $@ ne "";
@@ -75,13 +75,13 @@ use lib::find ();
 
     is(
       $lib::find::dir{'Module::To::Load'},
-      "$base_dir/lib",
+      data_dir("use/lib"),
       "\"use lib::find;\" sets up the \%lib::find::dir slot with the right path"
     );
 
     is(
       $Module::To::Load::lib_dir,
-      "$base_dir/lib",
+      data_dir("use/lib"),
       "\"use lib::find;\" sets up the \%lib::find::dir slot to the right path " .
       "during the require"
     );
