@@ -245,7 +245,7 @@ use lib::find ();
     } "find_lib() does not die if the module can be found";
 
     is(
-      $Module::To::Find::lib_dir,
+      dir($Module::To::Find::lib_dir),
       data_dir("scalar/lib"),
       "the \$lib::find::dir variable is set to the right path during the require"
     );
