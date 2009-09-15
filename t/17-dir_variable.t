@@ -87,7 +87,7 @@ use lib::find ();
 {
   lives_and {
     is(
-      dir($lib::find::dir),
+      dir(do { package Test::Most; $lib::find::dir . "" }),
       dir(lib::find::libdir_path('Test::Most'))
     );
   } "reading \$lib::find::dir returns the right value";
