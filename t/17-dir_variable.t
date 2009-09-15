@@ -22,7 +22,10 @@ use lib::find ();
   } "exists \$lib::find::dir{'Test::Most'} is true";
 
   lives_and {
-    is($lib::find::dir{'Test::Most'}, lib::find::libdir_path('Test::Most'));
+    is(
+      $lib::find::dir{'Test::Most'},
+      dir(lib::find::libdir_path('Test::Most'))
+    );
   } "reading \$lib::find::dir{'Test::Most'} returns the right value";
 
   {
@@ -83,7 +86,10 @@ use lib::find ();
 
 {
   lives_and {
-    is($lib::find::dir, lib::find::libdir_path('Test::Most'));
+    is(
+      $lib::find::dir,
+      dir(lib::find::libdir_path('Test::Most'))
+    );
   } "reading \$lib::find::dir returns the right value";
 
   throws_ok {
@@ -161,7 +167,7 @@ use lib::find ();
       local $INC{$inc_key} = $path;
 
       is(
-        lib::find::libdir_path($test->{module}),
+        dir(lib::find::libdir_path($test->{module})),
         $expected_libdir,
         "$test->{desc} - libdir_path() returns the right dir"
       );
@@ -192,7 +198,7 @@ use lib::find ();
       file(data_file("libdir_path/some/path/to/Foo/Bar.pm"))->relative
         ->stringify;
 
-    $libdir = lib::find::libdir_path('Foo::Bar');
+    $libdir = dir(lib::find::libdir_path('Foo::Bar'));
   }
 
   is(
