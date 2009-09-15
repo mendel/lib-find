@@ -281,7 +281,7 @@ sub libdir_path($)
   my $actual_relative_module_file =
     substr $module_file, -length($relative_module_file);
 
-  croak "Inconsistent \%INC: '$module_name' => '$module_file'"
+  croak "Inconsistent \%INC: '$module_name' => '$module_filename'"
     if $actual_relative_module_file ne $relative_module_file;
 
   return Cwd::realpath($libdir);
