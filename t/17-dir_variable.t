@@ -158,7 +158,6 @@ use lib::find ();
     my $expected_libdir = data_dir("libdir_path/$test->{libdir}");
 
     my $test_sub = sub {
-      local $Test::Builder::Level = $Test::Builder::Level + 1;
       local $INC{$inc_key} = $path;
 
       is(
