@@ -23,7 +23,7 @@ use lib::find ();
 
   lives_and {
     is(
-      $lib::find::dir{'Test::Most'},
+      dir($lib::find::dir{'Test::Most'}),
       dir(lib::find::libdir_path('Test::Most'))
     );
   } "reading \$lib::find::dir{'Test::Most'} returns the right value";
@@ -36,7 +36,7 @@ use lib::find ();
 
     my @values;
     lives_ok {
-      @values = values %lib::find::dir;
+      @values = map { dir($_) } values %lib::find::dir;
     } "values \%lib::find::dir does not die";
 
     is(
@@ -51,7 +51,7 @@ use lib::find ();
       ],
       [
         map {
-          $_ => $lib::find::dir{$_}
+          $_ => dir($lib::find::dir{$_})
         } @keys
       ],
       "keys \%lib::find::dir and values \%lib::find::dir return the elements in " .
@@ -87,7 +87,7 @@ use lib::find ();
 {
   lives_and {
     is(
-      $lib::find::dir,
+      dir($lib::find::dir),
       dir(lib::find::libdir_path('Test::Most'))
     );
   } "reading \$lib::find::dir returns the right value";
@@ -220,13 +220,13 @@ use lib::find ();
     } "find_lib() does not die if the module can be found";
 
     is(
-      $lib::find::dir{'Module::To::Find'},
+      dir($lib::find::dir{'Module::To::Find'}),
       data_dir("hash/lib"),
       "find_lib() sets up the \%lib::find::dir slot with the right path"
     );
 
     is(
-      $Module::To::Find::lib_dir,
+      dir($Module::To::Find::lib_dir),
       data_dir("hash/lib"),
       "the \%lib::find::dir slot is set to the right path during the require"
     );
