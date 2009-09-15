@@ -1,10 +1,8 @@
 package lib::find;
 
-#TODO split the dirs and reassemble them instead of using updir
-#  * so that we can handle symlinks like they should be handled (tests for symlinks, with skip on unfriendly OSes)
-#  * we can use $FindBin::Bin instead of ::RealBin
-#  * see FindBin::libs code (ie. it calls realpath() on the result of the concatenation of the dir parts and use that)
-#TODO use Path::Class instead for the path mangling - it will Do The Right Thing when we want to have the parent dir
+# * use $FindBin::Bin instead of ::RealBin
+#   * see FindBin::libs code (ie. it calls realpath() on the result of the concatenation of the dir parts and use that)
+# * tests for symlinked bin and lib dirs, with skip on unfriendly OSes
 #TODO a nice goodie: consider all paths in $lib::find::libdir_names as UNIX paths (ie. do foreign_dir('Unix', $libdir_name)->as_native on them before using them)
 #TODO add logging and an envvar to turn it on/off
 #TODO in doc compare to Find::Lib and FindBin::libs, add them to SEE ALSO
@@ -17,8 +15,8 @@ use strict;
 use 5.005;
 
 use FindBin;
-use File::Spec;
 use Cwd;
+use Path::Class;
 use Carp;
 
 use lib::find::dir::Hash;
@@ -115,7 +113,7 @@ variable to a different value every time you start working in a different
 checkout tree (just to make sure those scripts will find the correct libdir
 whichever dir you are in when you start them). So you decide to use L<FindBin>.
 Fine so far (though not too elegant and introduces a 'moving part' that can go
-wrong).
+wrong; not to speak about portability of your relative dir specifications).
 
 From time to time you probably want to freely rearrange those utility scripts
 into a continuously morphing directory hierarchy under your C<bin> or C<script>
@@ -142,7 +140,7 @@ Now you can write this instead:
     use MyApp::Schema;
 
 And your script will automagically find the dir where the MyApp::Common module
-resides.
+resides. And will work on any platform that L<Path::Class> and L<Cwd> supports.
 
 =head1 EXPORT
 
@@ -235,26 +233,6 @@ sub import
   goto \&find_lib;
 }
 
-#
-# my $path = _append_dir_to_path($path, $dir);
-#
-# Appends C<$dir> to C<$path> (using L<File::Spec>).
-#
-sub _append_dir_to_path($$)
-{
-  my ($path, $dir) = @_;
-
-  my ($volume, $dirs) = File::Spec->splitpath($path, 1);
-  my @dirs = File::Spec->splitdir($dirs);
-
-  return File::Spec->catpath(
-    $volume,
-    File::Spec->catdir(@dirs, $dir),
-    ''
-  );
-}
-
-
 =head2 module_inc_key($module_name)
 
 Returns the key for the L<perlvar/%INC> hash that corresponds to
@@ -291,31 +269,22 @@ sub libdir_path($)
 
   return undef unless defined $module_name;
 
-  my $module_file = $INC{module_inc_key($module_name)};
+  my $module_filename = $INC{module_inc_key($module_name)};
 
-  return undef unless defined $module_file;
+  return undef unless defined $module_filename;
 
-  my @module_name_elems = split /::/, $module_name;
-  $module_name_elems[-1] .= ".pm";
+  my $module_file = file($module_filename)->as_foreign('Unix');
 
-  my ($volume, $dir, $filename) = File::Spec->splitpath($module_file);
-  my @dirs = File::Spec->splitdir($dir);
-  pop @dirs if (@dirs > 1) && $dirs[-1] eq '';
-  my @module_path_elems = (@dirs, $filename);
+  (my $relative_module_file = "$module_name.pm") =~ s{::}{/}g;
 
-  my @module_path_elems_to_remove =
-    splice @module_path_elems, -@module_name_elems;
+  my $libdir = substr $module_file, 0, -(length($relative_module_file) + 1);
+  my $actual_relative_module_file =
+    substr $module_file, -length($relative_module_file);
 
-  foreach my $i (1..@module_name_elems) {
-    croak "Inconsistent \%INC: '$module_name' => '$module_file'" if
-      $module_name_elems[-$i] ne $module_path_elems_to_remove[-$i];
-  }
+  croak "Inconsistent \%INC: '$module_name' => '$module_file'"
+    if $actual_relative_module_file ne $relative_module_file;
 
-  return Cwd::realpath(File::Spec->catpath(
-    $volume,
-    File::Spec->catdir(@module_path_elems),
-    ''
-  ));
+  return Cwd::realpath($libdir);
 }
 
 =head2 find_lib($module_name)
@@ -341,14 +310,15 @@ sub find_lib
   if (!exists $INC{$module_inc_key}) {
     my @libdirs;
 
-    my $dir = $FindBin::RealBin;
+    my $root_dir = dir('');
+    my $dir = dir($FindBin::RealBin);
 
     my $scan_iterations = 0;
     do {
       push @libdirs, grep { -e $_ }
-        map { _append_dir_to_path($dir, $_) } @libdir_names;
-      $dir = Cwd::realpath(_append_dir_to_path($dir, File::Spec->updir));
-    } while ($dir ne File::Spec->rootdir &&
+        map { $dir->subdir($_)->stringify } @libdir_names;
+      $dir = dir(Cwd::realpath($dir->parent));
+    } while ($dir ne $root_dir &&
              $scan_iterations++ < $max_scan_iterations);
 
     if (!@libdirs) {
