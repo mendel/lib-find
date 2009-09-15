@@ -40,7 +40,7 @@ use lib::find ();
   );
 
   is(
-    $newINC{'Module/With/No/Content.pm'},
+    file($newINC{'Module/With/No/Content.pm'}),
     data_file("a/lib/Module/With/No/Content.pm"),
     "find_lib() sets the \%INC slot to the right path even when the module does " .
     "not declare the package"
@@ -162,7 +162,7 @@ use lib::find ();
   );
 
   is(
-    $newINC{'Module/With/No/Content.pm'},
+    file($newINC{'Module/With/No/Content.pm'}),
     data_file("a/lib/Module/With/No/Content.pm"),
     "find_lib() sets the \%INC slot to the right path even when the module does " .
     "not declare the package (libdir already in \@INC)"

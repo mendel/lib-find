@@ -34,7 +34,7 @@ use lib::find ();
   }
 
   is(
-    $newINC{'Module/To/Find.pm'},
+    file($newINC{'Module/To/Find.pm'}),
     data_file("a/b/lib/Module/To/Find.pm"),
     "find_lib() finds the module in the deepest dir when there are alternatives"
   );

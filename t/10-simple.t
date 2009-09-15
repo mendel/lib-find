@@ -42,7 +42,7 @@ use lib::find ();
     }
 
     is(
-      $newINC{'Module/To/Find.pm'},
+      file($newINC{'Module/To/Find.pm'}),
       data_file("$expected_inc/Module/To/Find.pm"),
       "find_lib() finds the right dir ('$bin_path' => '$expected_inc')"
     );
@@ -88,7 +88,7 @@ use lib::find ();
     }
 
     is(
-      $newINC{'Module/To/Find.pm'},
+      file($newINC{'Module/To/Find.pm'}),
       data_file("$expected_inc/Module/To/Find.pm"),
       "\"use lib::find 'Module::To::Find'\" finds the right dir ('$bin_path' => '$expected_inc')"
     );
