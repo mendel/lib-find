@@ -1,6 +1,14 @@
 package lib::find;
 
 #FIXME make $dir and %dir return absolute paths and document it
+#FIXME fix paths in testcases (UNIX paths were used)
+#TODO split the dirs and reassemble them instead of using updir
+#  * so that we can handle symlinks like they should be handled (tests for symlinks, with skip on unfriendly OSes)
+#  * we can use $FindBin::Bin instead of ::RealBin
+#  * see FindBin::libs code (ie. it calls realpath() on the result of the concatenation of the dir parts and use that)
+#TODO use Path::Class instead for the path mangling - it will Do The Right Thing when we want to have the parent dir
+#TODO add logging and an envvar to turn it on/off
+#TODO in doc compare to Find::Lib and FindBin::libs, add them to SEE ALSO
 #TODO create TODO tests (and add TODO doc) for inlined module case (ie. when in one file there are some auxiliary modules and the user asks for any of them)
 #TODO rewrite SYNOPSIS and DESCRIPTION a bit: the module has two separate uses: 1. find the libdir of any or the current module, 2. scan dirs upwards to find a module and unshift its libdir to @INC
 
