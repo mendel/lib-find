@@ -1,6 +1,5 @@
 package lib::find;
 
-#FIXME make $dir and %dir return absolute paths and document it
 #FIXME fix paths in testcases (UNIX paths were used)
 #TODO split the dirs and reassemble them instead of using updir
 #  * so that we can handle symlinks like they should be handled (tests for symlinks, with skip on unfriendly OSes)
@@ -181,7 +180,8 @@ our @libdir_names = qw(blib lib);
 =head2 %lib::find::dir
 
 A tied hash variable that returns the libdir value (the return value of
-L<libdir_path>) for the given module name (used as the key).
+L<libdir_path>) for the given module name (used as the key). The value returned
+is always an absolute path.
 
     use lib::find 'MyApp::Common';
 
@@ -277,7 +277,7 @@ sub module_inc_key($)
 =head2 libdir_path($module_name)
 
 Returns the libdir value for the given module name (if it's already loaded - it
-uses L<perlvar/%INC>).
+uses L<perlvar/%INC>). The value returned is always an absolute path.
 
 Strips off the module name parts from the the module file of C<$module_name>
 found in L<perlvar/%INC> and returns the path of the libdir. Returns C<undef>
@@ -311,11 +311,11 @@ sub libdir_path($)
       $module_name_elems[-$i] ne $module_path_elems_to_remove[-$i];
   }
 
-  return File::Spec->catpath(
+  return Cwd::realpath(File::Spec->catpath(
     $volume,
     File::Spec->catdir(@module_path_elems),
     ''
-  );
+  ));
 }
 
 =head2 find_lib($module_name)

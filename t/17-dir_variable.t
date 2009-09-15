@@ -5,6 +5,7 @@ use warnings;
 
 use FindBin;
 use File::Spec;
+use Cwd;
 use List::MoreUtils qw(zip);
 
 use Test::Most;
@@ -93,6 +94,8 @@ use lib::find ();
 }
 
 {
+  my $base_dir = "$FindBin::Bin/data/dir_variable/libdir_path";
+
   my @tests = (
     {
       desc => "1-element module name, 3 dirs deep libdir",
@@ -149,7 +152,7 @@ use lib::find ();
     my $path_filename = pop @path_dirs;
     my $path = File::Spec->catpath(
       '',
-      File::Spec->catdir(File::Spec->rootdir, @path_dirs),
+      File::Spec->catdir($base_dir, @path_dirs),
       $path_filename
     );
 
@@ -158,7 +161,7 @@ use lib::find ();
     my $expected_libdir =
         File::Spec->catpath(
           '',
-          File::Spec->catdir(File::Spec->rootdir, @{$test->{libdir} || []}),
+          File::Spec->catdir($base_dir, @{$test->{libdir} || []}),
           ''
         );
 
@@ -189,6 +192,31 @@ use lib::find ();
       } "$test->{desc} - does not die";
     }
   }
+}
+
+{
+  my $base_dir = "$FindBin::Bin/data/dir_variable/libdir_path";
+  my $cwd = getcwd;
+
+  my $libdir;
+  {
+    local $INC{'Foo/Bar.pm'} =
+      File::Spec->abs2rel(
+        File::Spec->catpath(
+          '',
+          File::Spec->catdir($base_dir, qw(some path to Foo Bar.pm)),
+          ''
+        ),
+      $cwd);
+
+    $libdir = lib::find::libdir_path('Foo::Bar');
+  }
+
+  is(
+    $libdir,
+    Cwd::realpath($libdir),
+    "libdir_path() returns an absolute path"
+  );
 }
 
 {
