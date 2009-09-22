@@ -17,16 +17,24 @@ use Path::Class;
 use lib::find ();
 
 {
+  local @INC = @INC;
+  local %INC = %INC;
+  local @INC = (data_dir("hash/lib"), @INC);
+  local $Module::To::Find::lib_dir = undef;
+
+  # so that %INC got populated
+  require Module::To::Find;
+
   lives_and {
-    ok(exists $lib::find::dir{'Test::Most'});
-  } "exists \$lib::find::dir{'Test::Most'} is true";
+    ok(exists $lib::find::dir{'Module::To::Find'});
+  } "exists \$lib::find::dir{'Module::To::Find'} is true";
 
   lives_and {
     is(
-      dir($lib::find::dir{'Test::Most'}),
-      dir(lib::find::libdir_path('Test::Most'))
+      dir($lib::find::dir{'Module::To::Find'}),
+      dir(lib::find::libdir_path('Module::To::Find'))
     );
-  } "reading \$lib::find::dir{'Test::Most'} returns the right value";
+  } "reading \$lib::find::dir{'Module::To::Find'} returns the right value";
 
   {
     my @keys;
@@ -64,14 +72,14 @@ use lib::find ();
   } "scalar \%lib::find::dir is the same as scalar \%INC";
 
   throws_ok {
-    $lib::find::dir{'Test::Most'} = 'anything';
+    $lib::find::dir{'Module::To::Find'} = 'anything';
   } qr/^You cannot modify the \%lib::find::dir variable/,
-  "attempt to assign to \$lib::find::dir{'Test::Most'} throws the proper exception";
+  "attempt to assign to \$lib::find::dir{'Module::To::Find'} throws the proper exception";
 
   throws_ok {
-    delete $lib::find::dir{'Test::Most'};
+    delete $lib::find::dir{'Module::To::Find'};
   } qr/^You cannot modify the \%lib::find::dir variable/,
-  "attempt to delete \$lib::find::dir{'Test::Most'} throws the proper exception";
+  "attempt to delete \$lib::find::dir{'Module::To::Find'} throws the proper exception";
 
   throws_ok {
     %lib::find::dir = ();
@@ -85,10 +93,20 @@ use lib::find ();
 }
 
 {
+  local @INC = @INC;
+  local %INC = %INC;
+  local @INC = (data_dir("scalar/lib"), @INC);
+  local $Module::To::Find::lib_dir = undef;
+
+  # so that %INC got populated
+  require Module::To::Find;
+
+  # note: we mustn't return $lib::find::dir directly from the do block
+  # otherwise it will be evaluated outside the package
   lives_and {
     is(
-      dir(do { package Test::Most; $lib::find::dir . "" }),
-      dir(lib::find::libdir_path('Test::Most'))
+      dir(do { package Module::To::Find; my $dir = $lib::find::dir; $dir }),
+      dir(lib::find::libdir_path('Module::To::Find'))
     );
   } "reading \$lib::find::dir returns the right value";
 
