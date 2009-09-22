@@ -256,11 +256,17 @@ sub module_inc_key($)
 =head2 libdir_path($module_name)
 
 Returns the libdir value for the given module name (if it's already loaded - it
-uses L<perlvar/%INC>). The value returned is always an absolute path.
+uses L<perlvar/%INC>). The value returned is always an absolute path and is a
+L<Path::Class::Dir> instance (using the local path conventions).
 
 Strips off the module name parts from the the module file of C<$module_name>
 found in L<perlvar/%INC> and returns the path of the libdir. Returns C<undef>
 if C<$module_name> is not defined or if that module is not loaded.
+
+Note: you should not store L<Path::Class::Dir> instances into C<@INC>, see
+L<perlvar/@INC>. Stringify them before:
+
+    use lib libdir_path('Some::Module')->parent->stringify;
 
 =cut
 
@@ -285,7 +291,7 @@ sub libdir_path($)
   croak "Inconsistent \%INC: '$module_name' => '$module_filename'"
     if $actual_relative_module_file ne $relative_module_file;
 
-  return Cwd::realpath($libdir);
+  return dir(Cwd::realpath($libdir));
 }
 
 =head2 find_lib($module_name)

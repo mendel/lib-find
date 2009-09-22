@@ -29,12 +29,18 @@ use lib::find ();
     ok(exists $lib::find::dir{'Module::To::Find'});
   } "exists \$lib::find::dir{'Module::To::Find'} is true";
 
-  lives_and {
-    is(
-      dir($lib::find::dir{'Module::To::Find'}),
-      dir(lib::find::libdir_path('Module::To::Find'))
-    );
-  } "reading \$lib::find::dir{'Module::To::Find'} returns the right value";
+  my $libdir;
+  lives_ok {
+    $libdir = $lib::find::dir{'Module::To::Find'};
+  } "reading \$lib::find::dir{'Module::To::Find'} does not die";
+
+  isa_ok($libdir, 'Path::Class::Dir', "\$lib::find::dir{'Module::To::Find'}");
+
+  is(
+    dir($libdir),
+    dir(lib::find::libdir_path('Module::To::Find')),
+    "reading \$lib::find::dir{'Module::To::Find'} returns the right value"
+  );
 
   {
     my @keys;
@@ -103,12 +109,22 @@ use lib::find ();
 
   # note: we mustn't return $lib::find::dir directly from the do block
   # otherwise it will be evaluated outside the package
-  lives_and {
-    is(
-      dir(do { package Module::To::Find; my $dir = $lib::find::dir; $dir }),
-      dir(lib::find::libdir_path('Module::To::Find'))
-    );
-  } "reading \$lib::find::dir returns the right value";
+  my $libdir;
+  lives_ok {
+    $libdir = do {
+      package Module::To::Find;
+      my $dir = $lib::find::dir;
+      $dir;
+    };
+  } "reading \$lib::find::dir does not die";
+
+  is(
+    dir($libdir),
+    dir(lib::find::libdir_path('Module::To::Find')),
+    "reading \$lib::find::dir returns the right value"
+  );
+
+  isa_ok($libdir, 'Path::Class::Dir', "\$lib::find::dir");
 
   throws_ok {
     $lib::find::dir = 'anything';
