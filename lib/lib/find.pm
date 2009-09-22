@@ -1,8 +1,7 @@
 package lib::find;
 
-# * use $FindBin::Bin instead of ::RealBin
-#   * see FindBin::libs code (ie. it calls realpath() on the result of the concatenation of the dir parts and use that)
-# * tests for symlinked bin and lib dirs, with skip on unfriendly OSes
+#TODO tests for symlinked bin and lib dirs, tests for files, sockets, named pipes, block and char devices as libdir candidates; with skip on unfriendly OSes
+#TODO use $FindBin::Bin instead of ::RealBin (see FindBin::libs code (ie. it calls realpath() on the result of the concatenation of the dir parts and use that))
 #TODO a nice goodie: consider all paths in $lib::find::libdir_names as UNIX paths (ie. do foreign_dir('Unix', $libdir_name)->as_native on them before using them)
 #TODO add logging and an envvar to turn it on/off
 #TODO in doc compare to Find::Lib and FindBin::libs, add them to SEE ALSO
