@@ -90,7 +90,7 @@ But there's more, you can tweak C<@INC> from the module being searched for:
 
     # in MyApp/Common.pm
     use lib::find;
-    use lib "$lib::find::dir/../stuff/lib";
+    use lib $lib::find::dir->parent->subdir('stuff')->('lib');
 
     # in bin/cron/foo.pl
     use lib::find 'MyApp::Common'; # finds the dir upwards that contains
@@ -146,9 +146,9 @@ resides. And will work on any platform that L<Path::Class> and L<Cwd> supports.
 
 No exports.
 
-C<< use lib::find 'MyApp::Common' >> is equivalent to C<<
-lib::find::find_lib('MyApp::Common') >> and C<< use lib::find; >> does not call
-L<find_lib>.
+C<< use lib::find 'MyApp::Common' >> is equivalent to C<< BEGIN {
+lib::find::find_lib('MyApp::Common') } >> and C<< use lib::find; >> does not
+call L</find_lib>.
 
 =head1 VARIABLES
 
@@ -177,15 +177,14 @@ our @libdir_names = qw(blib lib);
 
 =head2 %lib::find::dir
 
-A tied hash variable that returns the libdir value (the return value of
-L<libdir_path>) for the given module name (used as the key). The value returned
-is always an absolute path.
+A tied hash variable that returns the value of L</libdir_path> for the module
+name used as the key:
 
     use lib::find 'MyApp::Common';
 
     # set $app_root to the absolute path of the 'myapp' dir (see the example in
     # the L</SYNOPSIS>)
-    my $app_root = "$lib::find::dir{'MyApp::Common'}/..";
+    my $app_root = $lib::find::dir{'MyApp::Common'}->parent;
 
 Since L<perlvar/%INC> is already set when the module searched for is being
 compiled, you can use C<< $lib::find::dir{+__PACKAGE__} >> there. So you can
@@ -193,9 +192,11 @@ use libdirs relative to the libdir of any module:
 
     use lib::find;
 
-    use lib "$lib::find::dir{+__PACKAGE__}/../stuff/lib";
+    use lib $lib::find::dir{+__PACKAGE__}->parent->subdir('stuff')->subdir('lib')->stringify;
 
-See also L<$lib::find::dir> for a more compact syntax.
+See L</libdir_path> for description of the return value.
+
+See also L</$lib::find::dir> for a more compact syntax.
 
 =cut
 
@@ -203,18 +204,18 @@ tie our %dir, 'lib::find::dir::Hash', '%' . __PACKAGE__ . '::dir';
 
 =head2 $lib::find::dir
 
-A tied scalar variable that returns the value of the L<%lib::find::dir> hash
+A tied scalar variable that returns the value of the L</%lib::find::dir> hash
 slot that corresponds to the current module (ie. where this variable evaluated
-from).
+from); practically the same as C<< $lib::find::dir{+__PACKAGE__} >>.
 
-Everything described at L<%lib::find::dir> applies to this variable, too.
+Everything described at L</%lib::find::dir> applies to this variable, too.
 
 This variable is especially convenient when you want to use libdirs relative to
 the libdir of the current module:
 
     use lib::find;
 
-    use lib "$lib::find::dir/../stuff/lib";
+    use lib $lib::find::dir->parent->subdir('stuff')->subdir('lib')->stringify;
 
 =cut
 
