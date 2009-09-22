@@ -3,7 +3,6 @@ package lib::find;
 #TODO tests for symlinked bin dirs
 #TODO use $FindBin::Bin instead of ::RealBin (see FindBin::libs code (ie. it calls realpath() on the result of the concatenation of the dir parts and use that))
 #TODO a nice goodie: consider all paths in $lib::find::libdir_names as UNIX paths (ie. do foreign_dir('Unix', $libdir_name)->as_native on them before using them)
-#TODO add logging and an envvar to turn it on/off
 #TODO in doc compare to Find::Lib and FindBin::libs, add them to SEE ALSO
 #TODO create TODO tests (and add TODO doc) for inlined module case (ie. when in one file there are some auxiliary modules and the user asks for any of them)
 #TODO rewrite SYNOPSIS and DESCRIPTION a bit: the module has two separate uses: 1. find the libdir of any or the current module, 2. scan dirs upwards to find a module and unshift its libdir to @INC
@@ -300,6 +299,10 @@ success.
 
 No-op if C<$module_name> is not defined.
 
+If the C<< $ENV{LIB_FIND_TRACE} >> environment variable is set to 1, logs
+(using L<perldoc/warn>) the module names and libdirs found. If it is set to 2,
+also logs the libdir candidates found.
+
 =cut
 
 sub find_lib
@@ -332,6 +335,9 @@ sub find_lib
             join(", ", map { "'$_'" } @libdir_names) .
             ") found when scanning upwards from '$FindBin::RealBin'";
     }
+    warn __PACKAGE__ . ": libdir candidates for '$module_name': " .
+      join(", ", map { "'$_'" } @libdirs) . "\n"
+        if ($ENV{LIB_FIND_TRACE} || 0) >= 2;
 
     foreach my $libdir (@libdirs) {
       unshift @INC, $libdir;
@@ -345,6 +351,10 @@ sub find_lib
     croak "Module '$module_name' not found when scanning upwards from " .
           "'$FindBin::RealBin'";
   }
+
+  warn __PACKAGE__ . ": found '$module_name' at '$INC{$module_inc_key}' " .
+    "(prepended to \@INC)\n"
+      if ($ENV{LIB_FIND_TRACE} || 0) >= 1;
 }
 
 =head1 TODO
