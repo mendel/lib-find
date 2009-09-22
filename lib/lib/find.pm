@@ -89,7 +89,7 @@ But there's more, you can tweak C<@INC> from the module being searched for:
 
     # in MyApp/Common.pm
     use lib::find;
-    use lib $lib::find::dir->parent->subdir('stuff')->('lib');
+    use lib $lib::find::dir->parent->subdir('stuff', 'lib');
 
     # in bin/cron/foo.pl
     use lib::find 'MyApp::Common'; # finds the dir upwards that contains
@@ -191,7 +191,7 @@ use libdirs relative to the libdir of any module:
 
     use lib::find;
 
-    use lib $lib::find::dir{+__PACKAGE__}->parent->subdir('stuff')->subdir('lib')->stringify;
+    use lib $lib::find::dir{+__PACKAGE__}->parent->subdir('stuff', 'lib')->stringify;
 
 See L</libdir_path> for description of the return value.
 
@@ -214,7 +214,7 @@ the libdir of the current module:
 
     use lib::find;
 
-    use lib $lib::find::dir->parent->subdir('stuff')->subdir('lib')->stringify;
+    use lib $lib::find::dir->parent->subdir('stuff', 'lib')->stringify;
 
 =cut
 
