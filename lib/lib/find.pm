@@ -1,6 +1,6 @@
 package lib::find;
 
-#TODO tests for symlinked bin and lib dirs, tests for files, sockets, named pipes, block and char devices as libdir candidates; with skip on unfriendly OSes
+#TODO tests for symlinked bin dirs
 #TODO use $FindBin::Bin instead of ::RealBin (see FindBin::libs code (ie. it calls realpath() on the result of the concatenation of the dir parts and use that))
 #TODO a nice goodie: consider all paths in $lib::find::libdir_names as UNIX paths (ie. do foreign_dir('Unix', $libdir_name)->as_native on them before using them)
 #TODO add logging and an envvar to turn it on/off
@@ -321,7 +321,7 @@ sub find_lib
 
     my $scan_iterations = 0;
     do {
-      push @libdirs, grep { -e $_ }
+      push @libdirs, grep { -d || (-l && -d readlink) }
         map { $dir->subdir($_)->stringify } @libdir_names;
       $dir = dir(Cwd::realpath($dir->parent));
     } while ($dir ne $root_dir &&
