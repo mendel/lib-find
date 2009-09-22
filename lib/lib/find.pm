@@ -336,7 +336,7 @@ sub find_lib
             ") found when scanning upwards from '$FindBin::RealBin'";
     }
     warn __PACKAGE__ . ": libdir candidates for '$module_name': " .
-      join(", ", map { "'$_'" } @libdirs) . "\n"
+      join(", ", map { "'$_'" } map { dir($_) } @libdirs) . "\n"
         if ($ENV{LIB_FIND_TRACE} || 0) >= 2;
 
     foreach my $libdir (@libdirs) {
@@ -352,8 +352,8 @@ sub find_lib
           "'$FindBin::RealBin'";
   }
 
-  warn __PACKAGE__ . ": found '$module_name' at '$INC{$module_inc_key}' " .
-    "(prepended to \@INC)\n"
+  warn __PACKAGE__ . ": found '$module_name' at " .
+    "'" . dir($INC{$module_inc_key}) . "' (prepended to \@INC)\n"
       if ($ENV{LIB_FIND_TRACE} || 0) >= 1;
 }
 
