@@ -1,12 +1,5 @@
 package lib::find;
 
-#TODO a nice goodie: consider all paths in $lib::find::libdir_names as UNIX paths (ie. do foreign_dir('Unix', $libdir_name)->as_native on them before using them)
-#TODO an option to add the intermediate libdirs to @INC when scanning up from $FindBin::Bin to the dir of the module to be found
-#TODO in doc compare to Find::Lib and FindBin::libs, add them to SEE ALSO
-# * compared to FindBin::libs, it adds the libdirs in a more controlled way
-#TODO create TODO tests (and add TODO doc) for inlined module case (ie. when in one file there are some auxiliary modules and the user asks for any of them)
-#TODO rewrite SYNOPSIS and DESCRIPTION a bit: the module has two separate uses: 1. find the libdir of any or the current module, 2. scan dirs upwards to find a module and unshift its libdir to @INC
-
 use warnings;
 use strict;
 
@@ -140,6 +133,85 @@ Now you can write this instead:
 
 And your script will automagically find the dir where the MyApp::Common module
 resides. And will work on any platform that L<Path::Class> and L<Cwd> supports.
+
+=head2 Differences from L<Find::Lib>
+
+The role of L<lib::find> is similar to that of L<Find::Lib> with the following
+differences:
+
+=over
+
+=item *
+
+It scans upwards from the directory of the script until the module is found.
+L<Find::Lib> only tries the paths hard-coded in the script.
+
+=item *
+
+It offers a convenient interface to access the libdirs of the current (or any
+other) module (see L</libdir_path>, L</$lib::find::dir>, L</%lib::find::dir>)
+from the bootstrap (or any other) module.
+
+=item *
+
+It uses L<FindBin> (that L<Find::Lib> avoids).
+
+=back
+
+=head2 Differences from L<FindBin::libs>
+
+L<lib::find> fills the same niche as L<FindBin::libs>. The main differences:
+
+=over
+
+=item *
+
+It does not add all libdirs in all the parent dirs to C<@INC>, only the libdir
+of the module to be found (L<FindBin::libs> adds all of them except some
+well-known ones like C</usr/lib> and C</lib>).
+
+Because you often don't have control over the dirs upwards from the directory
+where your application is installed/unpacked, it's safer to not add them to
+C<@INC>.
+
+=item *
+
+It is less flexible and in return has a less complicated interface than
+L<FindBin::libs>:
+
+=over
+
+=item *
+
+It cannot start the scanning from any other dir than C<$FindBin::Bin>.
+
+=item *
+
+You cannot specify dirs you want to skip.
+
+=item *
+
+It cannot change C<$ENV{PERL5LIB}>.
+
+=back
+
+=item *
+
+It does not have such a nice description of use cases as L<FindBin::libs> has
+(see L<FindBin::libs/"Homegrown Library Management">).
+
+=item *
+
+It offers a convenient interface to access the libdirs of the current (or any
+other) module (see L</libdir_path>, L</$lib::find::dir>, L</%lib::find::dir>)
+from the bootstrap (or any other) module.
+
+=item *
+
+It uses L<Path::Class> instead of doing the low-level work directly in
+L<File::Spec>.
+
+=back
 
 =head1 EXPORT
 
@@ -370,8 +442,29 @@ C<$lib::find::libdir_names>)
 
 =item *
 
+an option to add the intermediate libdirs to @INC when scanning up from
+$FindBin::Bin to the dir of the module to be found
+
+=item *
+
+some way to compactly denote paths relative to $lib::find::dir (or
+$lib::find::dir{...}), in Unix notation (but keeping the volume info)
+
+=item *
+
+make inlined modules work (ie. when in one file there are some auxiliary
+modules and the user asks for any of them)
+
+=item *
+
 how does it work when there are subrefs in @INC? (eg. scripts running from PAR
 archives)
+
+=item *
+
+rewrite SYNOPSIS and DESCRIPTION a bit: the module has two separate uses: 1.
+find the libdir of any or the current module, 2. scan dirs upwards to find a
+module and unshift its libdir to @INC
 
 =back
 
@@ -396,7 +489,7 @@ module.)
 
 =head1 SEE ALSO
 
-L<FindBin>, L<Cwd>
+L<FindBin>, L<Cwd>, L<Find::Lib>, L<FindBin::libs>
 
 =head1 AUTHOR
 
@@ -407,9 +500,6 @@ Norbert Buchmüller, C<< <norbi at nix.hu> >>
 Please report any bugs or feature requests to C<bug-lib-find at rt.cpan.org>, or through
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=lib-find>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
-
-
-
 
 =head1 SUPPORT
 
