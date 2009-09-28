@@ -1,11 +1,13 @@
 ^(?!script/|examples/|lib/|inc/|t/|Makefile.PL$|README$|MANIFEST$|Changes$|META.yml$)
 
-
 # Avoid version control files.
 \bRCS\b
 \bCVS\b
 ,v$
 \B\.svn\b
+
+# Avoid .keep files (used to make git keep empty dirs).
+/\.keep$
 
 # Avoid Makemaker generated and utility files.
 \bMakefile$

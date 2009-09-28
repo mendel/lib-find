@@ -1,6 +1,5 @@
 package lib::find;
 
-#TODO omit .keep files from the dist
 #TODO a nice goodie: consider all paths in $lib::find::libdir_names as UNIX paths (ie. do foreign_dir('Unix', $libdir_name)->as_native on them before using them)
 #TODO an option to add the intermediate libdirs to @INC when scanning up from $FindBin::Bin to the dir of the module to be found
 #TODO in doc compare to Find::Lib and FindBin::libs, add them to SEE ALSO
