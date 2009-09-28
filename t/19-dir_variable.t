@@ -17,9 +17,11 @@ use Path::Class;
 use lib::find ();
 
 {
+  local $TestUtils::base_dir = "hash";
+
   local @INC = @INC;
   local %INC = %INC;
-  local @INC = (data_dir("hash/lib"), @INC);
+  local @INC = (data_dir("lib"), @INC);
   local $Module::To::Find::lib_dir = undef;
 
   # so that %INC got populated
@@ -99,9 +101,11 @@ use lib::find ();
 }
 
 {
+  local $TestUtils::base_dir = "scalar";
+
   local @INC = @INC;
   local %INC = %INC;
-  local @INC = (data_dir("scalar/lib"), @INC);
+  local @INC = (data_dir("lib"), @INC);
   local $Module::To::Find::lib_dir = undef;
 
   # so that %INC got populated
@@ -138,6 +142,8 @@ use lib::find ();
 }
 
 {
+  local $TestUtils::base_dir = "libdir_path";
+
   my @tests = (
     {
       desc => "1-element module name, 3 dirs deep libdir",
@@ -190,12 +196,12 @@ use lib::find ();
   );
 
   foreach my $test (@tests) {
-    my $path = data_file("libdir_path/$test->{path}");
+    my $path = data_file("$test->{path}");
 
     (my $inc_key = "$test->{module}.pm") =~ s{::}{/}g;
 
     $test->{libdir} ||= "";
-    my $expected_libdir = data_dir("libdir_path/$test->{libdir}");
+    my $expected_libdir = data_dir("$test->{libdir}");
 
     my $test_sub = sub {
       local $INC{$inc_key} = $path;
@@ -226,10 +232,12 @@ use lib::find ();
 }
 
 {
+  local $TestUtils::base_dir = "libdir_path";
+
   my $libdir;
   {
     local $INC{'Foo/Bar.pm'} =
-      file(data_file("libdir_path/some/path/to/Foo/Bar.pm"))->relative
+      file(data_file("some/path/to/Foo/Bar.pm"))->relative
         ->stringify;
 
     $libdir = dir(lib::find::libdir_path('Foo::Bar'));
@@ -243,10 +251,12 @@ use lib::find ();
 }
 
 {
+  local $TestUtils::base_dir = "hash";
+
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::Bin = data_dir("hash/bin");
+    local $FindBin::Bin = data_dir("bin");
     local $Module::To::Find::lib_dir = undef;
 
     lives_ok {
@@ -255,23 +265,25 @@ use lib::find ();
 
     is(
       dir($lib::find::dir{'Module::To::Find'}),
-      data_dir("hash/lib"),
+      data_dir("lib"),
       "find_lib() sets up the \%lib::find::dir slot with the right path"
     );
 
     is(
       dir($Module::To::Find::lib_dir),
-      data_dir("hash/lib"),
+      data_dir("lib"),
       "the \%lib::find::dir slot is set to the right path during the require"
     );
   }
 }
 
 {
+  local $TestUtils::base_dir = "scalar";
+
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::Bin = data_dir("scalar/bin");
+    local $FindBin::Bin = data_dir("bin");
     local $Module::To::Find::lib_dir = undef;
 
     lives_ok {
@@ -280,7 +292,7 @@ use lib::find ();
 
     is(
       dir($Module::To::Find::lib_dir),
-      data_dir("scalar/lib"),
+      data_dir("lib"),
       "the \$lib::find::dir variable is set to the right path during the require"
     );
   }

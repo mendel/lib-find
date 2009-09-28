@@ -14,7 +14,9 @@ use TestUtils;
 use lib::find ();
 
 {
-  local @INC = (data_dir("find_lib/lib"), @INC);
+  local $TestUtils::base_dir = "find_lib";
+
+  local @INC = (data_dir("lib"), @INC);
   local $Module::To::Load::lib_dir = undef;
 
   my @newINC;
@@ -23,7 +25,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::Bin = data_dir("find_lib/bin");
+    local $FindBin::Bin = data_dir("bin");
 
     lives_ok {
       eval "use Module::To::Load"; die if $@ ne "";
@@ -34,14 +36,14 @@ use lib::find ();
 
     is(
       dir($lib::find::dir{'Module::To::Load'}),
-      data_dir("find_lib/lib"),
+      data_dir("lib"),
       "\"use lib::find (); lib::find::find_lib(undef);\" sets up the \%lib::find::dir slot with the " .
       "right path"
     );
 
     is(
       dir($Module::To::Load::lib_dir),
-      data_dir("find_lib/lib"),
+      data_dir("lib"),
       "\"use lib::find (); lib::find::find_lib(undef);\" sets up the \%lib::find::dir slot to the " .
       "right path during the require"
     );
@@ -55,7 +57,9 @@ use lib::find ();
 }
 
 {
-  local @INC = (data_dir("use/lib"), @INC);
+  local $TestUtils::base_dir = "use";
+
+  local @INC = (data_dir("lib"), @INC);
   local $Module::To::Load::lib_dir = undef;
 
   my @newINC;
@@ -64,7 +68,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::Bin = data_dir("use/bin");
+    local $FindBin::Bin = data_dir("bin");
 
     lives_ok {
       eval "use Module::To::Load"; die if $@ ne "";
@@ -75,13 +79,13 @@ use lib::find ();
 
     is(
       dir($lib::find::dir{'Module::To::Load'}),
-      data_dir("use/lib"),
+      data_dir("lib"),
       "\"use lib::find;\" sets up the \%lib::find::dir slot with the right path"
     );
 
     is(
       dir($Module::To::Load::lib_dir),
-      data_dir("use/lib"),
+      data_dir("lib"),
       "\"use lib::find;\" sets up the \%lib::find::dir slot to the right path " .
       "during the require"
     );
