@@ -129,14 +129,12 @@ sub data_dir
 {
   my ($subdir) = @_;
 
-  $subdir = "" if !defined $subdir;
-
   my $test_name = test_name();
 
   my $bin_dir = dir($FindBin_Bin);
 
-  my @subdirs =
-    ('data', $test_name, defined $base_dir ? ($base_dir) : (), $subdir);
+  my @subdirs = grep { defined $_ }
+    ('data', $test_name, $base_dir, $subdir);
 
   return dir($bin_dir->volume,
     $bin_dir->as_foreign('Unix')->subdir(@subdirs)->as_native
@@ -165,15 +163,12 @@ sub data_file
 {
   my ($subdirs_and_filename) = @_;
 
-  $subdirs_and_filename = "" if !defined $subdirs_and_filename;
-
   my $test_name = test_name();
 
   my $bin_dir = dir($FindBin_Bin);
 
-  my @subdirs_and_filename =
-    ('data', $test_name, defined $base_dir ? ($base_dir) : (),
-      $subdirs_and_filename);
+  my @subdirs_and_filename = grep { defined $_ }
+    ('data', $test_name, $base_dir, $subdirs_and_filename);
 
   return dir($bin_dir->volume,
     $bin_dir->as_foreign('Unix')->file(@subdirs_and_filename)->as_native
