@@ -398,12 +398,12 @@ sub find_lib
     my $scan_iterations = 0;
     do {
       push @libdirs, grep { -d || (-l && -d readlink) }
-        map { Cwd::realpath($dir->subdir($_)) } @libdir_names;
+        map { $dir->subdir($_) } @libdir_names;
       $dir = dir($dir->parent);
     } while ($dir ne $root_dir &&
              $scan_iterations++ < $max_scan_iterations);
 
-    @libdirs = uniq @libdirs;
+    @libdirs = uniq map { Cwd::realpath($_) } @libdirs;
     if (!@libdirs) {
       croak "No libdir candidates (" .
             join(", ", map { "'$_'" } @libdir_names) .
