@@ -403,7 +403,7 @@ sub find_lib
     } while ($dir ne $root_dir &&
              $scan_iterations++ < $max_scan_iterations);
 
-    @libdirs = uniq map { Cwd::realpath($_) } @libdirs;
+    @libdirs = uniq map { dir(Cwd::realpath($_))->stringify } @libdirs;
     if (!@libdirs) {
       croak "No libdir candidates (" .
             join(", ", map { "'$_'" } @libdir_names) .
