@@ -11,6 +11,8 @@ use base qw(Exporter);
 our @EXPORT = qw(
   &data_dir
   &data_file
+  &try_to_make_symlink
+  &try_to_make_fifo
 );
 
 # we have to copy the FindBin variables as some tests locally overwrite them
@@ -77,6 +79,54 @@ sub data_file
     $bin_dir->as_foreign('Unix')
       ->file("data/$test_name/$subdirs_and_filename")->as_native
   )->stringify;
+}
+
+
+#
+# my $success = try_to_make_symlink($old_path, $new_path);
+#
+# Creates a symlink if symlinks are supported on the platform.
+#
+# Returns the return value of L<perlfunc/symlink> or false if symbolic links are
+# not supported on the platform.
+#
+sub try_to_make_symlink($$)
+{
+  my ($old_path, $new_path) = @_;
+
+  # test for symlink support per L<perlfunc/symlink>
+  return 0 unless eval { symlink "", ""; 1 };
+
+  if (-l $new_path) {
+    unlink $new_path;
+  }
+
+  symlink $old_path, $new_path
+    or die "Cannot symlink '$old_path' to '$new_path': $!";
+}
+
+#
+# my $success = try_to_make_fifo($path);
+#
+# Creates a named pipe (FIFO) if named pipes are supported on the platform.
+#
+# Returns the return value of L<POSIX/mkfifo> or false if named pipes are not
+# supported on the platform.
+#
+sub try_to_make_fifo($)
+{
+  my ($path) = @_;
+
+  return 0 unless
+    eval { require POSIX } && $@ eq "" &&
+    eval { POSIX::mkfifo("", 0777); 1 } && $@ eq "";
+
+  if (-p $path) {
+    unlink $path;
+  }
+
+  return POSIX::mkfifo($path, 0777)
+    or die "Cannot create named pipe (FIFO) '$path': $!";
 }
 
 1;

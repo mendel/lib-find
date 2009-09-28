@@ -15,31 +15,6 @@ use List::MoreUtils qw(none);
 
 use lib::find ();
 
-
-#
-# my $success = try_to_make_symlink($old_path, $new_path);
-#
-# Creates a symlink if symlinks are supported on the platform.
-#
-# Returns the return value of L<perlfunc/symlink> or false if symbolic links are
-# not supported on the platform.
-#
-sub try_to_make_symlink($$)
-{
-  my ($old_path, $new_path) = @_;
-
-  # test for symlink support per L<perlfunc/symlink>
-  return 0 unless eval { symlink "", ""; 1 };
-
-  if (-l $new_path) {
-    unlink $new_path;
-  }
-
-  symlink $old_path, $new_path
-    or die "Cannot symlink '$old_path' to '$new_path': $!";
-}
-
-
 {
   SKIP: {
     skip "Needs symbolic link support for these tests", 2
