@@ -211,6 +211,10 @@ from the bootstrap (or any other) module.
 It uses L<Path::Class> instead of doing the low-level work directly in
 L<File::Spec>.
 
+=item *
+
+More comprehensive tests (at least currently).
+
 =back
 
 =head1 EXPORT
