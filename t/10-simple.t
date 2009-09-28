@@ -31,7 +31,7 @@ use lib::find ();
     {
       local @INC = @INC;
       local %INC = %INC;
-      local $FindBin::RealBin = data_dir($bin_path);
+      local $FindBin::Bin = data_dir($bin_path);
 
       lives_ok {
         lib::find::find_lib('Module::To::Find');
@@ -76,7 +76,7 @@ use lib::find ();
     {
       local @INC = @INC;
       local %INC = %INC;
-      local $FindBin::RealBin = data_dir($bin_path);
+      local $FindBin::Bin = data_dir($bin_path);
 
       lives_ok {
         eval "use lib::find 'Module::To::Find'"; die if $@ ne "";

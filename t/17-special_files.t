@@ -87,7 +87,7 @@ sub try_to_make_fifo($)
     local @INC = @INC;
     local %INC = %INC;
     local @libdirs_tried = @libdirs_tried;
-    local $FindBin::RealBin = data_dir("file/a/bin");
+    local $FindBin::Bin = data_dir("file/a/bin");
 
     lives_ok {
       lib::find::find_lib('Module::To::Find');
@@ -129,7 +129,7 @@ sub try_to_make_fifo($)
       local @INC = @INC;
       local %INC = %INC;
       local @libdirs_tried = @libdirs_tried;
-      local $FindBin::RealBin = data_dir("symlink_to_dir/a/bin");
+      local $FindBin::Bin = data_dir("symlink_to_dir/a/bin");
 
       lives_ok {
         lib::find::find_lib('Module::To::Find');
@@ -167,7 +167,7 @@ sub try_to_make_fifo($)
       local @INC = @INC;
       local %INC = %INC;
       local @libdirs_tried = @libdirs_tried;
-      local $FindBin::RealBin = data_dir("symlink_to_file/a/bin");
+      local $FindBin::Bin = data_dir("symlink_to_file/a/bin");
 
       lives_ok {
         lib::find::find_lib('Module::To::Find');
@@ -209,7 +209,7 @@ sub try_to_make_fifo($)
       local @INC = @INC;
       local %INC = %INC;
       local @libdirs_tried = @libdirs_tried;
-      local $FindBin::RealBin = data_dir("fifo/a/bin");
+      local $FindBin::Bin = data_dir("fifo/a/bin");
 
       lives_ok {
         lib::find::find_lib('Module::To::Find');

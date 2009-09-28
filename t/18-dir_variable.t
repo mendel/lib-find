@@ -246,7 +246,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = data_dir("hash/bin");
+    local $FindBin::Bin = data_dir("hash/bin");
     local $Module::To::Find::lib_dir = undef;
 
     lives_ok {
@@ -271,7 +271,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = data_dir("scalar/bin");
+    local $FindBin::Bin = data_dir("scalar/bin");
     local $Module::To::Find::lib_dir = undef;
 
     lives_ok {

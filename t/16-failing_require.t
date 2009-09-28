@@ -22,7 +22,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = data_dir("a/bin");
+    local $FindBin::Bin = data_dir("a/bin");
 
     lives_ok {
       lib::find::find_lib('Module::With::No::Content');
@@ -56,12 +56,12 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = data_dir("a/bin");
+    local $FindBin::Bin = data_dir("a/bin");
 
     throws_ok {
       local $SIG{__WARN__} = sub { };
       lib::find::find_lib('Module::With::Syntax::Error');
-    } qr/^Module 'Module::With::Syntax::Error' not found when scanning upwards from '\Q$FindBin::RealBin\E'/,
+    } qr/^Module 'Module::With::Syntax::Error' not found when scanning upwards from '\Q$FindBin::Bin\E'/,
       "find_lib() dies with the proper error message if the module cannot be " .
       "required b/c of a syntax error";
 
@@ -99,11 +99,11 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = data_dir("a/bin");
+    local $FindBin::Bin = data_dir("a/bin");
 
     throws_ok {
       lib::find::find_lib('Module::That::Returns::False');
-    } qr/^Module 'Module::That::Returns::False' not found when scanning upwards from '\Q$FindBin::RealBin\E'/,
+    } qr/^Module 'Module::That::Returns::False' not found when scanning upwards from '\Q$FindBin::Bin\E'/,
       "find_lib() dies with the proper error message if the module cannot be " .
       "required b/c it returns false";
 
@@ -143,7 +143,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = data_dir("b/bin");
+    local $FindBin::Bin = data_dir("b/bin");
 
     lives_ok {
       lib::find::find_lib('Module::With::No::Content');
@@ -179,12 +179,12 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = data_dir("b/bin");
+    local $FindBin::Bin = data_dir("b/bin");
 
     throws_ok {
       local $SIG{__WARN__} = sub { };
       lib::find::find_lib('Module::With::Syntax::Error');
-    } qr/^Module 'Module::With::Syntax::Error' not found when scanning upwards from '\Q$FindBin::RealBin\E'/,
+    } qr/^Module 'Module::With::Syntax::Error' not found when scanning upwards from '\Q$FindBin::Bin\E'/,
       "find_lib() dies with the proper error message if the module cannot be " .
       "required b/c of a syntax error (libdir already in \@INC)";
 
@@ -224,11 +224,11 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = data_dir("b/bin");
+    local $FindBin::Bin = data_dir("b/bin");
 
     throws_ok {
       lib::find::find_lib('Module::That::Returns::False');
-    } qr/^Module 'Module::That::Returns::False' not found when scanning upwards from '\Q$FindBin::RealBin\E'/,
+    } qr/^Module 'Module::That::Returns::False' not found when scanning upwards from '\Q$FindBin::Bin\E'/,
       "find_lib() dies with the proper error message if the module cannot be " .
       "required b/c it returns false (libdir already in \@INC)";
 

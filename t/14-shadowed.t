@@ -24,7 +24,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = data_dir("a/bin");
+    local $FindBin::Bin = data_dir("a/bin");
 
     lives_ok {
       lib::find::find_lib('Module::To::Find');

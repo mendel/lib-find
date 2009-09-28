@@ -23,7 +23,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = data_dir("find_lib/bin");
+    local $FindBin::Bin = data_dir("find_lib/bin");
 
     lives_ok {
       eval "use Module::To::Load"; die if $@ ne "";
@@ -64,7 +64,7 @@ use lib::find ();
   {
     local @INC = @INC;
     local %INC = %INC;
-    local $FindBin::RealBin = data_dir("use/bin");
+    local $FindBin::Bin = data_dir("use/bin");
 
     lives_ok {
       eval "use Module::To::Load"; die if $@ ne "";

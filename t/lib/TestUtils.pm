@@ -13,6 +13,10 @@ our @EXPORT = qw(
   &data_file
 );
 
+# we have to copy the FindBin variables as some tests locally overwrite them
+our $FindBin_Bin = $FindBin::Bin;
+our $FindBin_Script = $FindBin::Script;
+
 #FIXME dirty hack - remove before uploading to CPAN
 # monkey-patch internals of Path::Class till my patch gets included
 {
@@ -38,7 +42,7 @@ our @EXPORT = qw(
 
 sub _test_name
 {
-  my ($test_name) = ($FindBin::Script =~ /^\d+[_-](.*)\.t$/);
+  my ($test_name) = ($FindBin_Script =~ /^\d+[_-](.*)\.t$/);
 
   return $test_name;
 }
@@ -51,7 +55,7 @@ sub data_dir
 
   my $test_name = _test_name();
 
-  my $bin_dir = dir($FindBin::Bin);
+  my $bin_dir = dir($FindBin_Bin);
 
   return dir($bin_dir->volume,
     $bin_dir->as_foreign('Unix')
@@ -67,7 +71,7 @@ sub data_file
 
   my $test_name = _test_name();
 
-  my $bin_dir = dir($FindBin::Bin);
+  my $bin_dir = dir($FindBin_Bin);
 
   return dir($bin_dir->volume,
     $bin_dir->as_foreign('Unix')

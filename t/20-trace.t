@@ -21,7 +21,7 @@ use lib::find ();
     warnings_exist {
       local @INC = @INC;
       local %INC = %INC;
-      local $FindBin::RealBin = data_dir("a/b/bin");
+      local $FindBin::Bin = data_dir("a/b/bin");
       local $ENV{LIB_FIND_TRACE} = 1;
 
       lib::find::find_lib('Module::To::Find');
@@ -43,7 +43,7 @@ use lib::find ();
     warnings_exist {
       local @INC = @INC;
       local %INC = %INC;
-      local $FindBin::RealBin = data_dir("a/b/bin");
+      local $FindBin::Bin = data_dir("a/b/bin");
       local $ENV{LIB_FIND_TRACE} = 2;
 
       lib::find::find_lib('Module::To::Find');

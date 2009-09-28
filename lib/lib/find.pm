@@ -1,7 +1,7 @@
 package lib::find;
 
-#TODO tests for symlinked bin dirs
-#TODO use $FindBin::Bin instead of ::RealBin (see FindBin::libs code (ie. it calls realpath() on the result of the concatenation of the dir parts and use that))
+#TODO do not Cwd::realname the dirs when traversing upwards, but when adding to @libdirs (add a test for 2-level symlinked bin dir); uniq on @libdirs
+#TODO omit .keep files from the dist
 #TODO a nice goodie: consider all paths in $lib::find::libdir_names as UNIX paths (ie. do foreign_dir('Unix', $libdir_name)->as_native on them before using them)
 #TODO in doc compare to Find::Lib and FindBin::libs, add them to SEE ALSO
 #TODO create TODO tests (and add TODO doc) for inlined module case (ie. when in one file there are some auxiliary modules and the user asks for any of them)
@@ -22,7 +22,7 @@ use lib::find::dir::Scalar;
 
 =head1 NAME
 
-lib::find - Finds a module scanning upwards from $FindBin::RealBin, adds its dir to @INC
+lib::find - Finds a module scanning upwards from $FindBin::Bin, adds its dir to @INC
 
 =head1 VERSION
 
@@ -36,10 +36,10 @@ our $VERSION = '0.01';
 =head1 SYNOPSIS
 
 This module starts scanning for directories named C<blib> or C<lib> in the
-parent directories of C<$FindBin::RealBin>, starting with C<$FindBin::RealBin>
-and going upwards. For each such libdir candidate it tries to C<require> the
-named module from it. Stops on the first module found and unshifts its libdir
-into C<@INC>.
+parent directories of C<$FindBin::Bin>, starting with C<$FindBin::Bin> and
+going upwards. For each such libdir candidate it tries to C<require> the named
+module from it. Stops on the first module found and unshifts its libdir into
+C<@INC>.
 
     # assume this directory layout:
     #
@@ -320,7 +320,7 @@ sub find_lib
     my @libdirs;
 
     my $root_dir = dir('');
-    my $dir = dir($FindBin::RealBin);
+    my $dir = dir($FindBin::Bin);
 
     my $scan_iterations = 0;
     do {
@@ -333,7 +333,7 @@ sub find_lib
     if (!@libdirs) {
       croak "No libdir candidates (" .
             join(", ", map { "'$_'" } @libdir_names) .
-            ") found when scanning upwards from '$FindBin::RealBin'";
+            ") found when scanning upwards from '$FindBin::Bin'";
     }
     warn __PACKAGE__ . ": libdir candidates for '$module_name': " .
       join(", ", map { "'$_'" } map { dir($_) } @libdirs) . "\n"
@@ -349,7 +349,7 @@ sub find_lib
 
   if (!defined $INC{$module_inc_key}) {
     croak "Module '$module_name' not found when scanning upwards from " .
-          "'$FindBin::RealBin'";
+          "'$FindBin::Bin'";
   }
 
   warn __PACKAGE__ . ": found '$module_name' at " .
@@ -376,13 +376,6 @@ archives)
 =head1 CAVEATS
 
 =over
-
-=item *
-
-It uses C<$FindBin::RealBin> instead of C<$FindBin::Bin> (see
-L<FindBin/"EXPORTABLE VARIABLES">). It's hard to fix, as the implementation
-depends on L<Cwd/realpath> (and that converts C<$FindBin::Bin> into
-C<$FindBin::RealBin> anyways).
 
 =item *
 
