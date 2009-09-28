@@ -1,9 +1,11 @@
 package lib::find;
 
-#TODO do not Cwd::realname the dirs when traversing upwards, but when adding to @libdirs (add a test for 2-level symlinked bin dir); uniq on @libdirs
+#TODO create a $TestUtil::base_dir variable that is exported, and is prepended to each path in data_dir()/data_file() (to avoid code repetition)
 #TODO omit .keep files from the dist
 #TODO a nice goodie: consider all paths in $lib::find::libdir_names as UNIX paths (ie. do foreign_dir('Unix', $libdir_name)->as_native on them before using them)
+#TODO an option to add the intermediate libdirs to @INC when scanning up from $FindBin::Bin to the dir of the module to be found
 #TODO in doc compare to Find::Lib and FindBin::libs, add them to SEE ALSO
+# * compared to FindBin::libs, it adds the libdirs in a more controlled way
 #TODO create TODO tests (and add TODO doc) for inlined module case (ie. when in one file there are some auxiliary modules and the user asks for any of them)
 #TODO rewrite SYNOPSIS and DESCRIPTION a bit: the module has two separate uses: 1. find the libdir of any or the current module, 2. scan dirs upwards to find a module and unshift its libdir to @INC
 
@@ -16,6 +18,7 @@ use FindBin;
 use Cwd;
 use Path::Class;
 use Carp;
+use List::MoreUtils qw(uniq);
 
 use lib::find::dir::Hash;
 use lib::find::dir::Scalar;
@@ -325,11 +328,12 @@ sub find_lib
     my $scan_iterations = 0;
     do {
       push @libdirs, grep { -d || (-l && -d readlink) }
-        map { $dir->subdir($_)->stringify } @libdir_names;
-      $dir = dir(Cwd::realpath($dir->parent));
+        map { Cwd::realpath($dir->subdir($_)) } @libdir_names;
+      $dir = dir($dir->parent);
     } while ($dir ne $root_dir &&
              $scan_iterations++ < $max_scan_iterations);
 
+    @libdirs = uniq @libdirs;
     if (!@libdirs) {
       croak "No libdir candidates (" .
             join(", ", map { "'$_'" } @libdir_names) .

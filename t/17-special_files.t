@@ -95,7 +95,7 @@ our @libdirs_tried;
 
     is(
       file($newINC{'Module/To/Find.pm'}),
-      data_file("symlink_to_dir/a/lib/Module/To/Find.pm"),
+      data_file("symlink_to_dir/a/real_lib/Module/To/Find.pm"),
       "find_lib() chooses the deepest libdir candidate if it's a symlink to a dir"
     );
   }

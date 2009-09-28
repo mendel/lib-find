@@ -9,6 +9,7 @@ requires 'FindBin' => '1.49';
 requires 'Path::Class' => '0.16';
 requires 'Cwd' => '3.3';
 requires 'Carp' => '1.08';
+requires 'List::MoreUtils' => '0.22';
 
 test_requires 'Test::Most' => '0.21';
 test_requires 'Test::More' => '0.92';
@@ -16,7 +17,6 @@ test_requires 'Test::Differences' => '0.4801';
 test_requires 'Test::Deep' => '0.103';
 test_requires 'Test::Warn' => '0.21';
 test_requires 'Test::Exception' => '0.27';
-test_requires 'List::MoreUtils' => '0.22';
 
 author_requires 'Test::Pod' => '1.22';
 author_requires 'Test::Pod::Coverage' => '1.08';
