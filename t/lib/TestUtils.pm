@@ -136,7 +136,7 @@ sub data_dir
   my @subdirs = grep { defined $_ }
     ('data', $test_name, $base_dir, $subdir);
 
-  return dir($bin_dir->volume,
+  return dir($bin_dir->volume ? ($bin_dir->volume) : (),
     $bin_dir->as_foreign('Unix')->subdir(@subdirs)->as_native
   )->stringify;
 }
@@ -170,7 +170,7 @@ sub data_file
   my @subdirs_and_filename = grep { defined $_ }
     ('data', $test_name, $base_dir, $subdirs_and_filename);
 
-  return dir($bin_dir->volume,
+  return dir($bin_dir->volume ? ($bin_dir->volume) : (),
     $bin_dir->as_foreign('Unix')->file(@subdirs_and_filename)->as_native
   )->stringify;
 }
