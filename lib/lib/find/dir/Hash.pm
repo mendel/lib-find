@@ -80,7 +80,7 @@ sub FIRSTKEY
 {
   my ($self) = (shift, @_);
 
-  $self->{inc_keys_snapshot} = [ keys %INC ];
+  $self->{inc_keys_snapshot} = [ grep { /\.pm$/ } keys %INC ];
 
   return $self->NEXTKEY();
 }

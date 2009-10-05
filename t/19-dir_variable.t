@@ -60,7 +60,7 @@ use lib::find ();
 
     is(
       scalar @keys,
-      scalar keys %INC,
+      scalar grep { /\.pm$/ } keys %INC,
       "\%lib::find::dir has the same number of keys as \%INC"
     );
 
