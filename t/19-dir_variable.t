@@ -240,11 +240,11 @@ use lib::find ();
       file(data_file("some/path/to/Foo/Bar.pm"))->relative
         ->stringify;
 
-    $libdir = dir(lib::find::libdir_path('Foo::Bar'));
+    $libdir = lib::find::libdir_path('Foo::Bar');
   }
 
   is(
-    $libdir,
+    dir($libdir),
     dir($libdir)->absolute,
     "libdir_path() returns an absolute path"
   );
