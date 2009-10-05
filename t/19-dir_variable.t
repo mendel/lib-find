@@ -52,7 +52,7 @@ use lib::find ();
 
     my @values;
     lives_ok {
-      @values = map { dir($_) } values %lib::find::dir;
+      @values = map { dir($_)->stringify } values %lib::find::dir;
     } "values \%lib::find::dir does not die";
 
     is(
@@ -67,7 +67,7 @@ use lib::find ();
       ],
       [
         map {
-          $_ => dir($lib::find::dir{$_})
+          $_ => dir($lib::find::dir{$_})->stringify
         } @keys
       ],
       "keys \%lib::find::dir and values \%lib::find::dir return the elements in " .
