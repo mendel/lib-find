@@ -54,8 +54,8 @@ use lib::find ();
     lives_ok {
       @values =
         map { defined $_ ? $_->stringify : $_ }
-            map { dir($_) }
-                values %lib::find::dir;
+          map { dir($_) }
+            values %lib::find::dir;
     } "values \%lib::find::dir does not die";
 
     is(
@@ -72,8 +72,8 @@ use lib::find ();
         map {
           $_ =>
             map { defined $_ ? $_->stringify : $_ }
-                map { dir($_) }
-                    $lib::find::dir{$_}
+              map { dir($_) }
+                $lib::find::dir{$_}
         } @keys
       ],
       "keys \%lib::find::dir and values \%lib::find::dir return the elements in " .
